@@ -1,0 +1,20 @@
+notes for using git:
+
+http://guides.beanstalkapp.com/version-control/common-git-commands.html#remote
+
+------------------------------------------------------------------------------
+# connecting local folder system with git repository
+
+-> move into the local folder (ex docs/FYS4150)
+
+-> use the command 'git remote -v' to list the remote repositories and
+    their names (ex origin)
+
+-> to add a remote repository:
+  $ git remote add 'name' (ex origin) URL.git
+
+# to add a remote repository to a local folder
+
+-> move into the wanted folder
+
+-> use command 'git clone <remote_url>.git'

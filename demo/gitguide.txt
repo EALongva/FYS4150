@@ -18,3 +18,18 @@ http://guides.beanstalkapp.com/version-control/common-git-commands.html#remote
 -> move into the wanted folder
 
 -> use command 'git clone <remote_url>.git'
+
+# to update your remote repository from your local folders
+
+-> check 'git status' : displays the files not yet added
+
+-> use command 'git add .' to add all to the "staging"
+    - to add only specific files 'git add <file>'
+
+## now that the files are added 'git status' will display these in green
+
+-> use command 'git commit -m "message in quotes"'
+    - now your local git repository is up to date with the new changes
+
+-> now you can push to your remote repository to sync with local
+-> use command 'git push --all'

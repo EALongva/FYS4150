@@ -8,10 +8,15 @@
 #include <armadillo>
 
 arma::mat maketridiag(double a, double b, double c, int N); // dont need variable names
-// b diagonal and a, c off diagonal elements, N size
+//a upper off-diagonal, b diagonal and c lower off-diagonal elements, N size
 
 void maximum_indices(arma::mat A, int N, int& k, int& l);
 // finding the maximum value and its indices from matrix A of size N x N
+
+arma::mat rotation(arma::mat A, int N, int k, int l);
+// performing a jacobi method rotation on matrix A, returning the changed
+// matrix A. The input arguments k and l are the indices obtain from the
+// maximum_indices function.
 
 
 #endif

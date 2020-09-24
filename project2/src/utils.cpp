@@ -8,9 +8,9 @@ arma::mat maketridiag(double a, double b, double c, int N){
 
   arma::mat A(N,N,arma::fill::zeros);
 
-  A.diag(-1) += a;  // lower off diagonal
+  A.diag(1) += a;   // upper off diagonal
   A.diag(0) += b;   // diagonal
-  A.diag(1) += c;   // upper off diagonal
+  A.diag(-1) += c;  // lower off diagonal
 
   return A;
 
@@ -25,7 +25,7 @@ void maximum_indices(arma::mat A, int N, int& k, int& l){
   int k1, l1, k2, l2; // indices, 1 upper, 2 lower
   k1 = 0; k2 = 0; l1 = 0; l2 = 0; k = 0; l = 0;
 
-  for(   int i = 0;   i < N-1;  i++){ //
+  for(   int i = 0;   i < N-1;  i++){ // INDEXING -> A(i,j) = A(k,l)
     for( int j = i+1; j < N;    j++){ // Finding the maximum of the upper non-diagonal
 
       if ( fabs(A(i,j) ) > max1 ){
@@ -62,4 +62,50 @@ void maximum_indices(arma::mat A, int N, int& k, int& l){
     k = k2; l = l2;
   }
   std::cout << k << ", " << l << std::endl;
+}
+
+arma::mat rotation(arma::mat A, int N, int k, int l){
+
+  // Peforming rotation on maximum non-diagonal element
+
+  double a_ik, a_il, a_kk, a_ll, a_kl;
+  a_kk = A(k,k); a_ll = A(l,l); a_kl = A(k,l);
+
+  double tau, t, c, s, cc, ss, cs;
+  tau = (a_ll - a_kk)/(2*a_kl);
+
+  if( tau > 0 ){
+    t = 1./(tau + sqrt(1 + tau*tau));
+  }
+
+  else{
+    t = -1./(-tau + sqrt(1 + tau*tau));
+  }
+  //t = tau + sqrt(1 + tau*tau);
+
+  c = 1./sqrt(1 + t*t);
+  s = t*c;
+  cc = c*c; ss = s*s; cs = c*s;
+
+
+  for(int i=0;i < N;i++){
+
+    if(i != k && i != l){
+
+      a_ik = A(i,k); a_il = A(i,l);
+      A(i,k) = a_ik*c - a_il*s;
+      A(i,l) = a_il*c + a_ik*s;
+      A(k,i) = A(i,k);
+      A(l,i) = A(i,l);
+
+    }
+  }
+
+  A(k,k) = a_kk*cc - 2*a_kl*cs + a_ll*ss;
+  A(l,l) = a_ll*cc + 2*a_kl*cs + a_kk*ss;
+  A(k,l) = 0.0;
+  A(l,k) = 0.0;
+
+  return A;
+
 }

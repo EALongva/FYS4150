@@ -1,5 +1,12 @@
 // trying to figure out how to structure and solve exc 2b
-// run string:
+//
+// How to compile:
+//          >>g++ -std=c++17 -c src/utils.cpp [creates utils.o in main dir]
+//          >>g++ -std=c++17 -c main.cpp      [creates main.o in main dir]
+//          >>g++ -std=c++17 utils.o main.o -o program.exe -l armadillo
+//
+// note: -c flag creates the .o-files to link, -o flag let you name the program,
+// -std choose c++ version, -l links the armadillo library
 
 #include <iostream>
 #include <armadillo>
@@ -28,12 +35,15 @@ int main(int argc,char* argv[]){
   //arma::mat D = arma::eig_sym(A);
   //D.print();
 
-  arma::mat A(N,N,arma::fill::randu);
+  arma::mat A = maketridiag(a,d,a,N);
   A.print();
 
   int k;
   int l;
   maximum_indices(A, N, k, l);
   std::cout << k << ", " << l << std::endl;
+
+  arma::mat B = rotation(A,N,k,l);
+  B.print();
 
 }

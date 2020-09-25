@@ -134,6 +134,3 @@ arma::mat jacobimethod(arma::mat A, int N, double eps){
   return A;
 
 }
-
-int V(int rho){
-  return 1/2*k*alpha*alpha*rho*rho;

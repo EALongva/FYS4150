@@ -13,13 +13,6 @@
 #include <cmath>
 #include "include/utils.hpp"
 
-double secondpower(double x){
-  return x*x;
-}
-
-def function(x):
-
-
 int main(int argc,char* argv[]){
   if (argc < 2){
     std::cout << "not enough arguments" << std::endl;
@@ -45,12 +38,14 @@ int main(int argc,char* argv[]){
   arma::mat A = maketridiag(a,d,a,N);
   A.print();
 
-  int k;
-  int l;
-  maximum_indices(A, N, k, l);
-  std::cout << k << ", " << l << std::endl;
 
-  arma::mat B = rotation(A,N,k,l);
+  //int k;
+  //int l;
+  //maximum_indices(A, N, k, l);
+  //std::cout << k << ", " << l << std::endl;
+
+  int eps = -8;
+  arma::mat B = jacobimethod(A,N,eps);
   B.print();
 
 }

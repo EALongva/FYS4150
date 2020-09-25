@@ -18,5 +18,8 @@ arma::mat rotation(arma::mat A, int N, int k, int l);
 // matrix A. The input arguments k and l are the indices obtain from the
 // maximum_indices function.
 
+arma::mat jacobimethod(arma::mat A, int N, double eps, );
+// Performs the maximum_indices function and the jacobi rotation in a
+// while loop until max = A(k,l) < 10^eps. Returns the diagonalized
 
 #endif

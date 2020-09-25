@@ -110,6 +110,30 @@ arma::mat rotation(arma::mat A, int N, int k, int l){
 
 }
 
+arma::mat jacobimethod(arma::mat A, int N, double eps){
+
+  double epsilon = pow (10.,eps); // taking the eps argument as a power
+  int iterations = 0; // iteration counter
+  double max = 10.0; //
+
+  while (max > epsilon){
+
+    iterations ++;
+
+    // Finding the maximum non-diagonal element
+    int k, l;
+    maximum_indices(A,N,k,l); // retrieves the maximum indices k,l
+    max = A(k,l);
+    // note DEFINE MAX ON THE OUTSIDE OF MAXIMUM_INDICES
+
+    // Peforming rotation on maximum non-diagonal element
+    A = rotation(arma::mat A, int N, int k, int l);
+
+  }
+
+  return A;
+
+}
+
 int V(int rho){
   return 1/2*k*alpha*alpha*rho*rho;
-}

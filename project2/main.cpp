@@ -13,6 +13,13 @@
 #include <cmath>
 #include "include/utils.hpp"
 
+double secondpower(double x){
+  return x*x;
+}
+
+def function(x):
+
+
 int main(int argc,char* argv[]){
   if (argc < 2){
     std::cout << "not enough arguments" << std::endl;

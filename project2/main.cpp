@@ -9,8 +9,12 @@
 // -std choose c++ version, -l links the armadillo library
 
 #include <iostream>
+#include <cstdlib>
+#include <fstream>
+#include <iomanip>
 #include <armadillo>
 #include <cmath>
+#include "time.h"
 #include "include/utils.hpp"
 
 int main(int argc,char* argv[]){
@@ -36,7 +40,7 @@ int main(int argc,char* argv[]){
   //D.print();
 
   arma::mat A = maketridiag(a,d,a,N);
-  A.print();
+  //A.print();
 
 
   //int k;
@@ -44,8 +48,22 @@ int main(int argc,char* argv[]){
   //maximum_indices(A, N, k, l);
   //std::cout << k << ", " << l << std::endl;
 
+  // timing!
+  clock_t start;
+  clock_t finish;
+
   int eps = -8;
-  arma::mat B = jacobimethod(A,N,eps);
-  B.print();
+  int iterations;
+  start = clock();
+  arma::mat B = jacobimethod(A,N,eps,iterations);
+  finish = clock();
+  //B.print();
+
+  // timing end!
+  double T = ((double) (finish - start)/CLOCKS_PER_SEC );
+
+  std::cout << "iterations: " << iterations << "  time elapsed: " << T << std::endl;
+
+
 
 }

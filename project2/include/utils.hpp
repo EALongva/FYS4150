@@ -5,6 +5,9 @@
 #define UTILS_H_INCLUDED
 
 #include <iostream>
+#include <cstdlib>
+#include <fstream>
+#include <iomanip>
 #include <armadillo>
 
 arma::mat maketridiag(double a, double b, double c, int N); // dont need variable names
@@ -18,8 +21,18 @@ arma::mat rotation(arma::mat A, int N, int k, int l);
 // matrix A. The input arguments k and l are the indices obtain from the
 // maximum_indices function.
 
-arma::mat jacobimethod(arma::mat A, int N, int eps);
+arma::mat jacobimethod(arma::mat A, int N, int eps, int& iterations);
 // Performs the maximum_indices function and the jacobi rotation in a
 // while loop until max = A(k,l) < 10^eps. Returns the diagonalized
+// matrix where all off diag elements are below the threshold 10^eps.
+// also returns the iterations (how many times the rotation function
+// has been called).
+
+void ToFile(arma::mat A, arma::vec v, int N, char filename);
+// maybe: table of n rows and N columns, array with strings giving
+// name of the variables in the table, need to put all values in the
+// matrix A so that shape(A) is N x n. e.g v = (dimensionality, iterations,
+// time) A is then N x 3
+
 
 #endif

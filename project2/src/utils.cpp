@@ -1,6 +1,9 @@
 // functon library for project 2
 
 #include <iostream>
+#include <cstdlib>
+#include <fstream>
+#include <iomanip>
 #include <armadillo>
 #include "../include/utils.hpp"
 
@@ -31,9 +34,9 @@ void maximum_indices(arma::mat A, int N, int& k, int& l){
       if ( fabs(A(i,j) ) > max1 ){
 
         max1 = fabs(A(i,j));
-        std::cout << max1 << std::endl;
+        //std::cout << max1 << std::endl;
         k1 = i; l1 = j;
-        std::cout << k1 << ", " << l1 << std::endl;
+        //std::cout << k1 << ", " << l1 << std::endl;
       }
     }
   }
@@ -44,9 +47,9 @@ void maximum_indices(arma::mat A, int N, int& k, int& l){
       if ( fabs(A(i,j)) > max2 ){
 
         max2 = fabs(A(i,j));
-        std::cout << max2 << std::endl;
+        //std::cout << max2 << std::endl;
         k2 = i; l2 = j;
-        std::cout << k2 << ", " << l2 << std::endl;
+        //std::cout << k2 << ", " << l2 << std::endl;
       }
     }
   }
@@ -61,7 +64,7 @@ void maximum_indices(arma::mat A, int N, int& k, int& l){
     max = max2;
     k = k2; l = l2;
   }
-  std::cout << k << ", " << l << std::endl;
+  //std::cout << k << ", " << l << std::endl;
 }
 
 arma::mat rotation(arma::mat A, int N, int k, int l){
@@ -110,10 +113,10 @@ arma::mat rotation(arma::mat A, int N, int k, int l){
 
 }
 
-arma::mat jacobimethod(arma::mat A, int N, int eps){
+arma::mat jacobimethod(arma::mat A, int N, int eps, int& iterations){
 
   double epsilon = std::pow(10.,eps); // taking the eps argument as a power
-  int iterations = 0; // iteration counter
+  // int iterations = 0; // iteration counter
   double max = 10.0; // placeholder value
   int k, l; // declaring the indices k and l
 
@@ -135,5 +138,47 @@ arma::mat jacobimethod(arma::mat A, int N, int eps){
   }
 
   return A;
+
+}
+
+void ToFile(arma::mat A, arma::vec v, int N, char filename){
+
+  // Matrix A should have a shape of (n, N) with n as row elements, N as column
+  // elements. The vector v should contain the labels for the values on each of
+  // the rows in A.
+  /*
+  if (A.n_rows != v.n_rows){
+    std::cout << "shape of vector v does not match shape of matrix A" << std::endl;
+    std::cout << "make sure elements in v match rows in matrix A" << std::endl;
+    exit(1);
+  }
+
+  int n = v.n_rows;
+
+  // object for output files
+  std::ofstream ofile;
+
+  ofile.open(filename.c_str());
+
+  ofile << std::setiosflags(std::ios::showpoint | std::ios::uppercase);
+
+  for (int i = 0; i < n; i++){
+
+    ofile << v(i) <<;
+
+  }
+
+  ofile << std::endl;
+
+  for (int i = 0; i < N; i++){
+
+    ofile << std::setprecision(12) << i+1 << ",";
+    ofile << std::setprecision(12) << tG(i) << ",";
+    ofile << std::setprecision(12) << tS(i) << std::endl;
+
+  }
+
+  ofile.close();
+  */
 
 }

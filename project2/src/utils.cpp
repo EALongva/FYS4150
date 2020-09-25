@@ -109,3 +109,7 @@ arma::mat rotation(arma::mat A, int N, int k, int l){
   return A;
 
 }
+
+int V(int rho){
+  return 1/2*k*alpha*alpha*rho*rho;
+}

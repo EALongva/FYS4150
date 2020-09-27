@@ -14,6 +14,7 @@
 #include <iomanip>
 #include <armadillo>
 #include <cmath>
+#include <vector>
 #include "time.h"
 #include "include/utils.hpp"
 
@@ -39,6 +40,30 @@ int main(int argc,char* argv[]){
   //arma::mat D = arma::eig_sym(A);
   //D.print();
 
+  /*
+  arma::mat HO;
+  HO = HOmatrix(rho0, rhoN, N);
+  HO.print();
+  */
+
+  // testing the ToFileFunction
+
+  /*
+  arma::vec v1 = HO.diag(0);
+  arma::vec v2 = HO.diag(1);
+  arma::vec v3 = HO.diag(-1);
+  */
+
+  arma::mat A(3, N, arma::fill::randu);
+
+  std::string filename;
+  filename = "data.csv";
+
+  std::vector<std::string> v = {"n1", "n2", "n3"};
+
+  ToFile(A, v, N, filename);
+
+  /*
   arma::mat A = maketridiag(a,d,a,N);
   //A.print();
 
@@ -63,7 +88,7 @@ int main(int argc,char* argv[]){
   double T = ((double) (finish - start)/CLOCKS_PER_SEC );
 
   std::cout << "iterations: " << iterations << "  time elapsed: " << T << std::endl;
-
+  */
 
 
 }

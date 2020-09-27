@@ -5,6 +5,8 @@
 #include <fstream>
 #include <iomanip>
 #include <armadillo>
+#include <vector>
+#include "time.h"
 #include "../include/utils.hpp"
 
 arma::mat maketridiag(double a, double b, double c, int N){
@@ -16,6 +18,30 @@ arma::mat maketridiag(double a, double b, double c, int N){
   A.diag(-1) += c;  // lower off diagonal
 
   return A;
+
+}
+
+arma::mat HOmatrix(double rho0, double rhoN, int N){
+
+  arma::mat HO(N, N, arma::fill::zeros);
+  arma::vec rho = arma::linspace(rho0, rhoN, N);
+  rho = arma::pow(rho,2); // gives us the rho^2_i values in an array 'rho'
+
+  double h = (rhoN - rho0)/((double) N);
+  double hh = h*h;
+
+  double e = - 1/hh;
+  double d = 2/hh;
+
+  // filling in the values on the diagonals
+
+  HO.diag(-1) += e;
+  HO.diag(1) += e;
+
+  HO.diag(0) = rho;
+  HO.diag(0) += d;
+
+  return HO;
 
 }
 
@@ -141,44 +167,51 @@ arma::mat jacobimethod(arma::mat A, int N, int eps, int& iterations){
 
 }
 
-void ToFile(arma::mat A, arma::vec v, int N, char filename){
+void ToFile(arma::mat A, std::vector<std::string> v, int N, std::string filename){
 
   // Matrix A should have a shape of (n, N) with n as row elements, N as column
   // elements. The vector v should contain the labels for the values on each of
   // the rows in A.
-  /*
-  if (A.n_rows != v.n_rows){
+  ///*
+  if (A.n_rows != v.size()){
     std::cout << "shape of vector v does not match shape of matrix A" << std::endl;
     std::cout << "make sure elements in v match rows in matrix A" << std::endl;
     exit(1);
   }
 
-  int n = v.n_rows;
+  int n = v.size();
 
   // object for output files
   std::ofstream ofile;
 
-  ofile.open(filename.c_str());
+  ofile.open(filename); //.c_str()
 
   ofile << std::setiosflags(std::ios::showpoint | std::ios::uppercase);
 
   for (int i = 0; i < n; i++){
 
-    ofile << v(i) <<;
+    ofile << v[i] << " ,  " ; // std::vector indexing v[] not arma convention
 
   }
 
   ofile << std::endl;
 
-  for (int i = 0; i < N; i++){
+  for (int j = 0; j < N; j++){ // this is a bit confusing, sorry
+    for (int i=0; i < n; i++){
 
-    ofile << std::setprecision(12) << i+1 << ",";
-    ofile << std::setprecision(12) << tG(i) << ",";
-    ofile << std::setprecision(12) << tS(i) << std::endl;
+      ofile << std::setprecision(12) << A(i,j) << ",";
+
+    }
+
+    ofile << std::endl;
 
   }
 
   ofile.close();
-  */
+  //*/
 
+}
+
+void SimTransCount(){
+  
 }

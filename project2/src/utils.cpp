@@ -21,6 +21,26 @@ arma::mat maketridiag(double a, double b, double c, int N){
 
 }
 
+arma::mat BBmatrix(int N){
+
+  double rho0 = 0.0;    // static rho0 and rhoN
+  double rhoN = 1.0;
+  double h    = (rhoN - rho0)/((double) N);
+  double hh   = h*h;
+
+  double d    = 2/hh;
+  double a    = -1/hh;
+
+  arma::mat A(N,N,arma::fill::zeros);
+
+  A.diag(0)   += d;   // diagonal
+  A.diag(1)   += a;   // upper off diagonal
+  A.diag(-1)  += a;   // lower off diagonal
+
+  return A;
+
+}
+
 arma::mat HOmatrix(double rho0, double rhoN, int N){
 
   arma::mat HO(N, N, arma::fill::zeros);
@@ -167,7 +187,7 @@ arma::mat jacobimethod(arma::mat A, int N, int eps, int& iterations){
 
 }
 
-void ToFile(arma::mat A, std::vector<std::string> v, int N, std::string filename){
+void ToFile(arma::mat A, std::vector<std::string> v, std::string filename){
 
   // Matrix A should have a shape of (n, N) with n as row elements, N as column
   // elements. The vector v should contain the labels for the values on each of
@@ -180,6 +200,7 @@ void ToFile(arma::mat A, std::vector<std::string> v, int N, std::string filename
   }
 
   int n = v.size();
+  int N = A.n_cols;
 
   // object for output files
   std::ofstream ofile;
@@ -212,6 +233,40 @@ void ToFile(arma::mat A, std::vector<std::string> v, int N, std::string filename
 
 }
 
-void SimTransCount(){
-  
+void SimTransCount(int eps, int N_min, int N_step, int N_points, std::string filename){
+  // N_min: start N value, N_step: value added to N for each step,
+  // N_points: number of times N_step is added to N_min (length
+  // of resulting data file)
+
+  arma::mat M(3, N_points, arma::fill::zeros); // matrix containing data to file
+  arma::mat A, B;
+
+
+  for (int i = 0; i < N_points; i++){
+
+    int N = N_min + i*N_step;
+    A = BBmatrix(N);
+
+    clock_t start, finish;
+
+    int iterations = 0;
+
+    start = clock();
+    B = jacobimethod(A, N, eps, iterations);
+    finish = clock();
+
+    double T = ((double) (finish - start)/CLOCKS_PER_SEC );
+
+    // adding values for: N, iterations, T for this N to the M matrix
+    M(0,i) = N;
+    M(1,i) = iterations;
+    M(2,i) = T;
+
+  }
+
+  std::vector<std::string> v = {"N", "iterations", "CPUTime"};
+  ToFile(M, v, filename);
+
 }
+
+//

@@ -25,6 +25,8 @@ int main(int argc,char* argv[]){
   }
 
   int N = std::atoi(argv[1]);
+
+  /*
   float rho0 = 0.0;
   float rhoN = 1.0;
   float h = (rhoN - rho0)/((double) N);
@@ -33,6 +35,7 @@ int main(int argc,char* argv[]){
 
   float d = 2/hh;
   float a = -1/hh;
+  */
 
   //arma::mat A = maketridiag(a, d, a, N);
   //A.print();
@@ -54,6 +57,18 @@ int main(int argc,char* argv[]){
   arma::vec v3 = HO.diag(-1);
   */
 
+
+  int eps = -8;
+  int N_min = 5;
+  int N_step = 10;
+  int N_points = 13;
+  std::string filename = "dat/SimTransCountN_13.csv";
+
+  SimTransCount(eps, N_min, N_step, N_points, filename);
+
+
+
+  /*
   arma::mat A(3, N, arma::fill::randu);
 
   std::string filename;
@@ -61,9 +76,8 @@ int main(int argc,char* argv[]){
 
   std::vector<std::string> v = {"n1", "n2", "n3"};
 
-  ToFile(A, v, N, filename);
+  ToFile(A, v, filename);
 
-  /*
   arma::mat A = maketridiag(a,d,a,N);
   //A.print();
 

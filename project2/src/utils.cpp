@@ -213,6 +213,10 @@ void ToFile(arma::mat A, std::vector<std::string> v, std::string filename){
 
     ofile << v[i] << " ,  " ; // std::vector indexing v[] not arma convention
 
+    if(i == n-1){
+      ofile << v[i];
+    }
+
   }
 
   ofile << std::endl;
@@ -221,6 +225,10 @@ void ToFile(arma::mat A, std::vector<std::string> v, std::string filename){
     for (int i=0; i < n; i++){
 
       ofile << std::setprecision(12) << A(i,j) << ",";
+
+      if(i == n-1){
+        ofile << std::setprecision(12) << A(i,j);
+      }
 
     }
 

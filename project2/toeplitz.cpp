@@ -70,21 +70,23 @@ int main(int argc, char *argv[]){
   double epsilon = pow (10.,-8);
   int iterations = 0;
   double max = 10.0;
+  int max_iterations = (int) ((double) N * (double) N * 10);
+  cout << "max_iterations: " << max_iterations << endl;
 
-  while (max > epsilon){
+  while (max > epsilon && iterations < max_iterations){
     iterations ++;
   // Finding the maximum non-diagonal element
     double max1, max2;
     int k1, l1, k2, l2, k, l;
     max1 = 0.0; max2 = 0.0;
     for(int i = 0;i < N;i++){
-      for(int j = i+1;j < N;j++){ // Finding the maximum of the upper non-diagonal
+      for(int j = i+1;j < N;j++){ // Finding maximum of upper non-diagonal
         if (fabs(A(i,j))>max1){
           max1 = fabs(A(i,j));
           k1 = i; l1 = j;
     }}}
     for(int i = 1;i < N;i++){
-      for(int j = 0;j < i;j++){ // Finding the maximum of the lower non-diagonal
+      for(int j = 0;j < i;j++){ // Finding maximum of lower non-diagonal
         if (fabs(A(i,j))>max2){
           max2 = fabs(A(i,j));
           k2 = i; l2 = j;
@@ -107,7 +109,7 @@ int main(int argc, char *argv[]){
       t = 1./(tau + sqrt(1 + tau*tau));
     }
     else{
-      t = -1./(-tau + sqrt(1 + tau*tau));
+      t = 1./(tau - sqrt(1 + tau*tau));
     }
     //t = tau + sqrt(1 + tau*tau);
     c = 1./sqrt(1 + t*t);
@@ -129,6 +131,6 @@ int main(int argc, char *argv[]){
     A(k,l) = 0.0;
     A(l,k) = 0.0;
   }
-
   cout << "Iterations:" << iterations << endl;
+  //A.print();
 }

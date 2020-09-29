@@ -1,8 +1,6 @@
 """
 Assuming you have scripts
-    task1.cpp (takes 1 argument)
-    task2.cpp (takes 2 arguments)
-    task3.cpp (takes no arguments)
+    taskn.cpp (takes i arguments); i = 0,1,2,..i
 
 Here I'm using "-compile" as an optional argument for
 compiling whatever program we're running.
@@ -21,7 +19,18 @@ COMPILE = True if "-compile" in args else False
 if COMPILE: args.remove("-compile")
 
 # execute task1
-if program == "task1":
+if program == "test":
+
+    if COMPILE:
+        res = subprocess.run(["g++", "-std=c++17", "-c", "test.cpp"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/utils.cpp"])
+        res = subprocess.run(["g++", "-std=c++17", "test.o", "utils.o" \
+        , "-o", "test.x", "-l", "armadillo"])
+        res = subprocess.run(["rm", "test.o", "utils.o"])
+
+    res = subprocess.run(["./test.x"] + args)
+
+elif program == "task1":
 
     if COMPILE:
         res = subprocess.run(["g++", "-std=c++17", "-c", "scripts/bucklingbeam1.cpp"])
@@ -48,6 +57,7 @@ elif program == "task2":
 # catch failure to provide a valid program
 else:
     print("There's no program called " + program + ". Your options are:")
+    print("    test")
     print("    task1")
     print("    task2")
 

@@ -113,12 +113,17 @@ void maximum_indices(arma::mat A, int N, int& k, int& l){
   //std::cout << k << ", " << l << std::endl;
 }
 
-arma::mat rotation(arma::mat A, int N, int k, int l){
+void rotation(arma::mat& A, arma::mat& R, int N, int k, int l){
 
   // Peforming rotation on maximum non-diagonal element
+  //std::cout << "here" << std::endl;
 
   double a_ik, a_il, a_kk, a_ll, a_kl;
   a_kk = A(k,k); a_ll = A(l,l); a_kl = A(k,l);
+
+  //std::cout << "here too" << std::endl;
+  // elemnts of the eigenvector matrix R
+  double r_ik, r_il;
 
   double tau, t, c, s, cc, ss, cs;
   tau = (a_ll - a_kk)/(2*a_kl);
@@ -136,6 +141,7 @@ arma::mat rotation(arma::mat A, int N, int k, int l){
   s = t*c;
   cc = c*c; ss = s*s; cs = c*s;
 
+  //std::cout << "here2" << std::endl;
 
   for(int i=0;i < N;i++){
 
@@ -148,6 +154,12 @@ arma::mat rotation(arma::mat A, int N, int k, int l){
       A(l,i) = A(i,l);
 
     }
+    // eigenvectors
+    r_ik = R(i,k);
+    r_il = R(i,l);
+    R(i,k) = c*r_ik - s*r_il;
+    R(i,l) = c*r_il + s*r_ik;
+
   }
 
   A(k,k) = a_kk*cc - 2*a_kl*cs + a_ll*ss;
@@ -155,16 +167,21 @@ arma::mat rotation(arma::mat A, int N, int k, int l){
   A(k,l) = 0.0;
   A(l,k) = 0.0;
 
-  return A;
+  //std::cout << "rotation fin" << std::endl;
 
 }
 
-arma::mat jacobimethod(arma::mat A, int N, int eps, int& iterations){
+arma::mat jacobimethod(arma::mat A, arma::mat& R, int N, int eps, int& iterations){
 
   double epsilon = std::pow(10.,eps); // taking the eps argument as a power
   // int iterations = 0; // iteration counter
   double max = 10.0; // placeholder value
   int k, l; // declaring the indices k and l
+
+  arma::mat I(N, N, arma::fill::eye); // Identity matrix -> transforms to the
+                                      // eigenvectors
+
+  R = I;
 
   while (max > epsilon){
 
@@ -174,12 +191,8 @@ arma::mat jacobimethod(arma::mat A, int N, int eps, int& iterations){
     maximum_indices(A,N,k,l); // retrieves the maximum indices k,l
     max = std::fabs(A(k,l)); // calculating the new maximum off-diag element
 
-    //std::cout << max << std::endl;
-
     // Peforming rotation on maximum non-diagonal element
-    A = rotation(A, N, k, l);
-
-    //std::cout << iterations << std::endl;
+    rotation(A, R, N, k, l);
 
   }
 
@@ -211,10 +224,12 @@ void ToFile(arma::mat A, std::vector<std::string> v, std::string filename){
 
   for (int i = 0; i < n; i++){
 
-    ofile << v[i] << " ,  " ; // std::vector indexing v[] not arma convention
-
     if(i == n-1){
-      ofile << v[i];
+      ofile << v[i]; // so that lhe rows do not end with a comma
+    }
+
+    else{
+    ofile << v[i] << " ,  " ; // std::vector indexing v[] not arma convention
     }
 
   }
@@ -224,10 +239,12 @@ void ToFile(arma::mat A, std::vector<std::string> v, std::string filename){
   for (int j = 0; j < N; j++){ // this is a bit confusing, sorry
     for (int i=0; i < n; i++){
 
-      ofile << std::setprecision(12) << A(i,j) << ",";
-
       if(i == n-1){
         ofile << std::setprecision(12) << A(i,j);
+      }
+
+      else{
+      ofile << std::setprecision(12) << A(i,j) << ",";
       }
 
     }
@@ -247,7 +264,7 @@ void SimTransCount(int eps, int N_min, int N_step, int N_points, std::string fil
   // of resulting data file)
 
   arma::mat M(3, N_points, arma::fill::zeros); // matrix containing data to file
-  arma::mat A, B;
+  arma::mat A, B, R;
 
 
   for (int i = 0; i < N_points; i++){
@@ -260,7 +277,7 @@ void SimTransCount(int eps, int N_min, int N_step, int N_points, std::string fil
     int iterations = 0;
 
     start = clock();
-    B = jacobimethod(A, N, eps, iterations);
+    B = jacobimethod(A, R, N, eps, iterations);
     finish = clock();
 
     double T = ((double) (finish - start)/CLOCKS_PER_SEC );

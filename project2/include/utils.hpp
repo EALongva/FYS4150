@@ -28,12 +28,12 @@ squared*/
 void maximum_indices(arma::mat A, int N, int& k, int& l);
 // finding the maximum value and its indices from matrix A of size N x N
 
-arma::mat rotation(arma::mat A, int N, int k, int l);
-/*performing a jacobi method rotation on matrix A, returning the changed
-  matrix A. The input arguments k and l are the indices obtain from the
-  maximum_indices function.*/
+void rotation(arma::mat& A, arma::mat& R, int N, int k, int l);
+/*performing a jacobi method rotation on matrix A, overloading the start matrix
+  A and the eigenvector matrix R (thus passing them on). The input arguments k
+  and l are the indices obtain from the maximum_indices function.*/
 
-arma::mat jacobimethod(arma::mat A, int N, int eps, int& iterations);
+arma::mat jacobimethod(arma::mat A, arma::mat& R, int N, int eps, int& iterations);
 /*Performs the maximum_indices function and the jacobi rotation in a
   while loop until max = A(k,l) < 10^eps. Returns the diagonalized
   matrix where all off diag elements are below the threshold 10^eps.

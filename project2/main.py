@@ -33,10 +33,23 @@ if program == "task1":
     res = subprocess.run(["./task1.x"] + args)
     res = subprocess.run(["python", "scripts/bucklingbeam1.py"])
 
+elif program == "task2":
+
+    if COMPILE:
+        res = subprocess.run(["g++", "-std=c++17", "-c", "scripts/bucklingbeam2.cpp", "-l", "armadillo"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/utils.cpp"])
+        res = subprocess.run(["g++", "-std=c++17", "bucklingbeam2.o", "utils.o" \
+        , "-o", "task2.x", "-l", "armadillo"])
+        res = subprocess.run(["rm", "bucklingbeam2.o", "utils.o"])
+
+    res = subprocess.run(["./task2.x"] + args)
+    res = subprocess.run(["python", "scripts/bucklingbeam2.py"])
+
 # catch failure to provide a valid program
 else:
     print("There's no program called " + program + ". Your options are:")
     print("    task1")
+    print("    task2")
 
 """
 

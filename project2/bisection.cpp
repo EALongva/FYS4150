@@ -116,9 +116,9 @@ int main(int argc, char *argv[]){
           xl = lb(m1) = xm; // - make xm the lowest bound for all eigenvalues we want to find
         }
         else{ // If not
-          xl = lb(c) = xm; // - make xm the lower bound for the number of eigenvalues larger than the roots
+          xl = lb(c) = xm; // - make xm the lower bound for the eigenvalue with index larger than the number of roots
           if (x(c-1) > xm){
-            x(c-1) = xm;
+            x(c-1) = xm; // make xm the upper bound for the eigenvalue with index lower than the number of roots
           }
         }
       }

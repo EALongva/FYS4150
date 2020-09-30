@@ -29,13 +29,14 @@ void ASSERT_MAX_IND(){
   int k, l;
 
   // testing positive max value
-  double a, d;
+  double a, e, d;
   a = std::fabs(max);
+  e = std::fabs(max) - 1;
   d = a + 1; // so that d > max
 
   arma::mat A;
   A = { {d,0,0,0,a},
-        {0,d,0,0,0},
+        {0,d,0,0,e},
         {0,0,d,0,0},
         {0,0,0,d,0},
         {0,0,0,0,d}};
@@ -52,13 +53,14 @@ void ASSERT_MAX_IND(){
   // testing positive max value
 
   a = std::fabs(max) * -1;
+  e = std::fabs(max) - 1;
   d = a - 1; // so that d > max
 
-  A = { {d,0,0,0,0},
-        {0,d,0,0,0},
+  A = { {d,0,0,0,a},
+        {0,d,0,0,e},
         {0,0,d,0,0},
         {0,0,0,d,0},
-        {0,0,0,a,d}};
+        {0,0,0,0,d}};
 
   std::cout << "matrix being tested: " << std::endl;
   A.print();

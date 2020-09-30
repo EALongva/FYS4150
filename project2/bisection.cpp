@@ -40,7 +40,8 @@ int main(int argc, char *argv[]){
   int m1,m2;
   eps = pow (10.,-10); // The precision to which we want to know our lambda
   nonzero = pow (10.,-308); // The smallest number on the computer not zero
-  m1 = 0; m2 = N-1; // The indexes of eigenvalues we want to find
+  m1 = 0; // The index of the lowest eigenvalue we want to find
+  m2 = N-1; // The index of the largest eigenvalue we want to find
 
   // Setting up vectors to store information
   vec x(N, fill:: zeros); // Vector to store eigenvalues/upper bounds
@@ -73,6 +74,10 @@ int main(int argc, char *argv[]){
 
   xu = xmax;
   z = 0;
+
+  clock_t start, finish; // declaring start and finish time
+  start = clock(); // start time of computing
+
   for (int k = m2; k > m1-1; k--){ // Looping over all eigenvalues k
 
     xl = xmin;
@@ -87,8 +92,10 @@ int main(int argc, char *argv[]){
     }
 
     while (xu - xl > eps && z < (int) pow(10,5)){
+
       xm = (xl + xu)/2.; // Setting middle point
       z += 1;
+
       // Sturm sequence
       c = 0; r = 1; // We start with r = 1 since P_0 = 1
       for (int i = 0; i < N; i++){
@@ -96,29 +103,37 @@ int main(int argc, char *argv[]){
           r = d(i) - xm - aa(i)/r;
         }
         else{
-          r = d(i) - xm - aa(i)/nonzero;
+          r = d(i) - xm - aa(i)/nonzero; // avoid division by zero
         }
         if (r < 0){
-          c += 1;
+          c += 1; // Counting roots
         }
       }
+
+      // If the k-th root is larger than xm, set lower bound to xm
       if (c < k + 1){
-        if (c < m1 + 1){
-          xl = lb(m1) = xm;
+        if (c < m1 + 1){  // If there are less roots than lowest number of roots we want to find
+          xl = lb(m1) = xm; // - make xm the lowest bound for all eigenvalues we want to find
         }
-        else{
-          xl = lb(c) = xm;
+        else{ // If not
+          xl = lb(c) = xm; // - make xm the lower bound for the number of eigenvalues larger than the roots
           if (x(c-1) > xm){
             x(c-1) = xm;
           }
         }
       }
+
+      // If the k-th root is smaller than xm, et upper bound to xm
       else{
         xu = xm;
       }
+
     }
-    x(k) = (xl + xu)/2.;
+    x(k) = (xl + xu)/2.; // Set k-th eigenvalue (or the (k-1)-th upper bound) to xm
   }
+  finish = clock(); // finish time of computing
+  double time = ((double)(finish - start)/CLOCKS_PER_SEC);
+  cout << setprecision(32) << "Time used for " << N << " gridpoints: "<< time << endl;
   x.print();
   lb.print();
   cout << z << endl;

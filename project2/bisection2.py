@@ -44,7 +44,7 @@ for k in range(m2,m1-1,-1):
             if q != 0:
                 q = c[i] - x1 -  beta[i]/q;
             else:
-                q = c[i] - x1 - abs(b[i]/relfeh)
+                q = c[i] - x1 - beta[i]/relfeh
             if q < 0:
                 a += 1;
         if a < k + 1: # redigert

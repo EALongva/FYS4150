@@ -45,7 +45,7 @@ elif program == "task1":
 elif program == "task2":
 
     if COMPILE:
-        res = subprocess.run(["g++", "-std=c++17", "-c", "scripts/bucklingbeam2.cpp", "-l", "armadillo"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "scripts/bucklingbeam2.cpp"])
         res = subprocess.run(["g++", "-std=c++17", "-c", "src/utils.cpp"])
         res = subprocess.run(["g++", "-std=c++17", "bucklingbeam2.o", "utils.o" \
         , "-o", "task2.x", "-l", "armadillo"])
@@ -54,12 +54,42 @@ elif program == "task2":
     res = subprocess.run(["./task2.x"] + args)
     res = subprocess.run(["python", "scripts/bucklingbeam2.py"])
 
+elif program == "task3":
+
+    if COMPILE:
+        res = subprocess.run(["g++", "-std=c++17", "-c", "scripts/quantumdots.cpp",\
+        "-Ofast"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/utils.cpp", \
+        "-Ofast"])
+        res = subprocess.run(["g++", "-std=c++17", "quantumdots.o", "utils.o" \
+        , "-o", "task3.x", "-l", "armadillo", "-Ofast"])
+        res = subprocess.run(["rm", "quantumdots.o", "utils.o"])
+
+    res = subprocess.run(["./task3.x"] + args)
+    res = subprocess.run(["python", "scripts/quantumdots.py"])
+
+elif program == "task4":
+
+    if COMPILE:
+        res = subprocess.run(["g++", "-std=c++17", "-c", "scripts/quantumEigen.cpp",\
+         "-Ofast", "-l", "armadillo"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/utils.cpp", \
+        "-Ofast", "-l", "armadillo"])
+        res = subprocess.run(["g++", "-std=c++17", "quantumEigen.o", "utils.o" \
+        , "-o", "task4.x", "-l", "armadillo", "-Ofast"])
+        res = subprocess.run(["rm", "quantumEigen.o", "utils.o"])
+
+    res = subprocess.run(["./task4.x"] + args)
+    res = subprocess.run(["python", "scripts/quantumEigen.py"])
+
 # catch failure to provide a valid program
 else:
     print("There's no program called " + program + ". Your options are:")
-    print("    test")
-    print("    task1")
-    print("    task2")
+    print("    'test'")
+    print("    'task1'    - buckling beam, iterations for N=5,15,25,...,125")
+    print("    'task2'    - buckling beam, eigvals and vec using jacobimethod")
+    print("    'task3'    - solves the QM problem and plots eig- vals & vecs")
+    print("    'task4'    - QM, Arguments required: Nstart, Nstop, Nstep, rhoN")
 
 """
 

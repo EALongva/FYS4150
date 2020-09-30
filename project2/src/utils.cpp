@@ -81,12 +81,12 @@ void maximum_indices(arma::mat A, int N, int& k, int& l){
 
         max1 = fabs(A(i,j));
         //std::cout << max1 << std::endl;
-        k1 = i; l1 = j;
+        k = i; l = j;
         //std::cout << k1 << ", " << l1 << std::endl;
       }
     }
   }
-
+/*
   for(   int i = 1; i < N; i++){
     for( int j = 0; j < i; j++){ // Finding the maximum of the lower non-diagonal
 
@@ -110,6 +110,7 @@ void maximum_indices(arma::mat A, int N, int& k, int& l){
     max = max2;
     k = k2; l = l2;
   }
+  */
   //std::cout << k << ", " << l << std::endl;
 }
 

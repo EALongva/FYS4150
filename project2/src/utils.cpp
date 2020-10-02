@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <armadillo>
@@ -62,6 +63,32 @@ arma::mat HOmatrix(double rho0, double rhoN, int N){
   HO.diag(0) += d;
 
   return HO;
+
+}
+
+
+void BBanalyticEig(int N, arma::vec& eigvals, arma::vec& eigvec){
+  // returns the eigenvector for the lowest eigenvalue, rho (0,1)
+
+  double h = 1/((double) N);
+  double hh = h*h;
+  double d = 2/hh;
+  double a = -1/hh;
+  double pi = M_PI;
+  double arg = pi/((double) N);
+
+  for (int j=1; j < N+1; j++){
+    eigvals(j-1) = d + 2*a*std::cos(j*arg);
+  }
+
+  for (int j = 1; j < N+1; j++){
+    eigvec(j-1) = std::sin(j*arg);
+  }
+
+  eigvec = eigvec / arma::norm(eigvec);
+
+
+
 
 }
 

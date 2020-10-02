@@ -82,6 +82,30 @@ elif program == "task4":
     res = subprocess.run(["./task4.x"] + args)
     res = subprocess.run(["python", "scripts/quantumEigen.py"])
 
+elif program == "task5":
+
+    if COMPILE:
+        res = subprocess.run(["g++", "-std=c++17", "-c", "scripts/bucklingbeam3.cpp"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/utils.cpp"])
+        res = subprocess.run(["g++", "-std=c++17", "bucklingbeam3.o", "utils.o" \
+        , "-o", "task5.x", "-l", "armadillo"])
+        res = subprocess.run(["rm", "bucklingbeam3.o", "utils.o"])
+
+    res = subprocess.run(["./task5.x"] + args)
+    res = subprocess.run(["python", "scripts/bucklingbeam3.py"])
+
+elif program == "task6":
+
+    if COMPILE:
+        res = subprocess.run(["g++", "-std=c++17", "-c", "scripts/bucklingbeam4.cpp", "-Ofast"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/utils.cpp", "-Ofast"])
+        res = subprocess.run(["g++", "-std=c++17", "bucklingbeam4.o", "utils.o" \
+        , "-o", "task6.x", "-l", "armadillo", "-Ofast"])
+        res = subprocess.run(["rm", "bucklingbeam4.o", "utils.o"])
+
+    res = subprocess.run(["./task6.x"] + args)
+    res = subprocess.run(["python", "scripts/bucklingbeam4.py"])
+
 # catch failure to provide a valid program
 else:
     print("There's no program called " + program + ". Your options are:")
@@ -90,6 +114,8 @@ else:
     print("    'task2'    - buckling beam, eigvals and vec using jacobimethod")
     print("    'task3'    - solves the QM problem and plots eig- vals & vecs")
     print("    'task4'    - QM, Arguments required: Nstart, Nstop, Nstep, rhoN")
+    print("    'task5'    - BB, comparing analytical eigvals/vecs with armadillo")
+    print("    'task6'    - BB, comparing CPU time, jacobi vs armadillo")
 
 """
 

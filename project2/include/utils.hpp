@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <armadillo>
@@ -24,6 +25,11 @@ arma::mat HOmatrix(double rho0, double rhoN, int N);
 is the step length) and d = 2/h^2 + V_i on the diagonal. V_i is
 computed from a linspace(rho0, rhoN, N) where every element is
 squared*/
+
+void BBanalyticEig(int N, arma::vec& eigvals, arma::vec& eigvec);
+/* Function giving the analytical eigenvalues and eigenvector, lowest
+eigenvalue, for the buckling beam problem which can be compared to numerical results.
+Takes the dimensionality N and overloads pre declared armavectors eigvals and eigvec */
 
 void maximum_indices(arma::mat A, int N, int& k, int& l);
 // finding the maximum value and its indices from matrix A of size N x N

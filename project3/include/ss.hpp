@@ -26,7 +26,7 @@ class ss
 
 // functions
   void add(planet newplanet);
-  void planet_names();
+//void planet_names();
 
 };
 

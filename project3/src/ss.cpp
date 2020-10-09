@@ -23,10 +23,7 @@ void ss::add(planet newplanet)
   all_planets.push_back(newplanet);
 }
 
-void ss::planet_names()
-{
-  for (int i=0; i < )
-}
+
 
 
 

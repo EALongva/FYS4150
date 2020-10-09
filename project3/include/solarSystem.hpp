@@ -16,7 +16,7 @@ public:
   double totalMass;
   double totalKinetic;
   double totalPotential;
-s
+
   // Solar System Initializer
   solarSystem(double rad);
 

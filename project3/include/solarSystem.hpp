@@ -16,7 +16,6 @@ public:
   double totalMass;
   double totalKinetic;
   double totalPotential;
-  arma::vec COMposition;
 s
   // Solar System Initializer
   solarSystem(double rad);

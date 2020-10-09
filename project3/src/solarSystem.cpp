@@ -21,7 +21,6 @@ solarSystem::add_planet(newPlanet)
   totalPlanets += 1;
   totalMass += newPlanet.mass;
   allPlanets.push_back(newPlanet);
-
 }
 
 solarSystem::get_planet(planetName)
@@ -32,5 +31,5 @@ solarSystem::get_planet(planetName)
 
 solarSystem::velocityVerlet(int dimension, double finalTime, double dt)
 {
-  
+
 }

@@ -15,6 +15,7 @@ solarSystem::solarSystem(double rad, double Gconst)
   totalMass = 0.0;
   totalKinetic = 0.0;
   totalPotential = 0.0;
+  Gconst = Gconst;
 }
 
 void solarSystem::add_planet(const planet& newPlanet)
@@ -37,6 +38,11 @@ void solarSystem::velocityVerlet(double finalTime, double dt)
   planet Sun = get_planet("Sun");
   int n = (int) sizeof(Sun.position); // dimension n
 
+  // Updating the initial velocity of the sun to keep the centre of mass fixed
+  vec v0Sun (n, fill::zeros);
+  for (planet planet:allPlanets){ v0Sun -= planet.mass * planet.velocity; }
+  Sun.velocity = v0Sun/Sun.mass;
+
   // Finding position of the centre of mass
   vec R (n, fill::zeros);
   for (planet planet:allPlanets){ R += planet.mass * planet.position;}
@@ -45,34 +51,26 @@ void solarSystem::velocityVerlet(double finalTime, double dt)
   // Using the centre of mass as origin and updating initial positions
   for (planet planet:allPlanets){ planet.position -= R; }
 
-  // Updating the initial velocity of the sun to keep the centre of mass fixed
-  vec v0Sun (n, fill::zeros);
-  for (planet planet:allPlanets){ v0Sun -= planet.mass * planet.velocity; }
-  Sun.velocity = v0Sun;
-
   // Initializing force and acceleration vectors
   double time = 0.0;
-  vec F(n,fill::zeros); vec F0(n,fill::zeros);
+  vec F(n,fill::zeros);
   vec a(n,fill::zeros);
   vec a_new(n,fill::zeros);
   double dt_sqrd = 0.5*dt*dt;
   double dt_half = 0.5*dt;
 
 
-
   // Looping over all planets in time
   while (time < finalTime) {
     time += dt;
     for (planet planet:allPlanets){
-      F = F0; // Setting the gravity forces equal to zero
+      F.fill(0.0); // Setting the gravity forces equal to zero
       for (planet otherPlanet:allPlanets){
-        F += planet::gravitationalForce(otherPlanet, Gconst);
+        F += (vec) planet::gravitationalForce(otherPlanet, Gconst);
       }
-
-      a = F/planet.mass;
+      a = (vec) F/planet.mass;
       planet.position += dt*planet.velocity + dt_sqrd*a;
-
-      F = F0; // Setting the gravity forces equal to zero
+      F.fill(0.0); // Setting the gravity forces equal to zero
       for (planet otherPlanet:allPlanets){
         F += planet::gravitationalForce(otherPlanet, Gconst);
       }

@@ -27,10 +27,12 @@ vec planet::distance(const planet& otherPlanet)
 vec planet::gravitationalForce(const planet& otherPlanet, double Gconst)
 {
   vec r = distance(otherPlanet);
+  int n = (int) sizeof(r);
+  vec zerovec(n,fill::zeros);
   if (norm(r)!=0){
     return -Gconst * mass * otherPlanet.mass / pow(norm(r),3) * r;
   }
-  else {return 0;}
+  else {return zerovec;}
 }
 
 vec planet::acceleration(const planet& otherPlanet, double Gconst)

@@ -58,6 +58,7 @@ r_E_J = r_jupiter[0,:] - r_earth[0,:]
 distance_E_J = np.linalg.norm(r_E_J)
 a_earth_new = - GM_sun/x_earth**3*r_earth[0,:] - GM_sun*m_jupiter/distance_E_J**3*r_E_J
 a_jupiter_new = - GM_sun/x_jupiter**3*r_jupiter[0,:] - GM_sun*m_earth/distance_E_J**3*(-r_E_J)
+
 for i in range(1,N):
     a_earth = a_earth_new
     a_jupiter = a_jupiter_new

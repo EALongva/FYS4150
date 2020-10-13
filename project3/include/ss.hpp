@@ -34,7 +34,6 @@ class ss
   void VVerlet(double T, int N);
   void test(int nr);
 
-
 };
 
 

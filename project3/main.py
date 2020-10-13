@@ -45,11 +45,11 @@ elif program == "sstest":
 elif program == "crp":
 
     if COMPILE:
-        res = subprocess.run(["g++", "-std=c++17", "-c", "crp.cpp"])
-        res = subprocess.run(["g++", "-std=c++17", "-c", "src/planet.cpp"])
-        res = subprocess.run(["g++", "-std=c++17", "-c", "src/ss.cpp"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "crp.cpp", "-O3"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/planet.cpp", "-O3"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/ss.cpp", "-O3"])
         res = subprocess.run(["g++", "-std=c++17", "crp.o", \
-        "planet.o", "ss.o", "-o", "crp.x", "-l", "armadillo"])
+        "planet.o", "ss.o", "-o", "crp.x", "-l", "armadillo", "-O3"])
         res = subprocess.run(["rm", "crp.o", "ss.o", "planet.o"])
 
     res = subprocess.run(["./crp.x"] + args)

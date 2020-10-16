@@ -9,6 +9,7 @@ public:
   friend class planet;
 
   // Solar System Properties
+  int dimension;
   int totalPlanets;
   std::vector<planet> allPlanets;
   std::map<std::string,int> planetIndices;
@@ -16,12 +17,15 @@ public:
   double totalMass;
   double totalKinetic;
   double totalPotential;
+  double Gconst;
 
   // Solar System Initializer
-  solarSystem(double rad, double Gconst);
+  solarSystem(int dim, double G, double rad);
 
   // Functions
   void add_planet(const planet& newPlanet);
   planet get_planet(std::string planetName);
-  void velocityVerlet(double finalTime, double dt);
+  arma::vec acceleration(int i);
+  void FixOriginCentreOfMass();
+  void velocityVerlet(double finalTime, int integrationPoints);
 };

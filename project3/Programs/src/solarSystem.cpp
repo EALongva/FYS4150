@@ -74,20 +74,37 @@ void solarSystem::velocityVerlet(double finalTime, int integrationPoints)
 {
   double dt = finalTime/integrationPoints; // size of time step
 
-  mat a(totalPlanets, dimension, fill::zeros);
-  mat a_new(dimension, totalPlanets, fill::zeros);
-  mat r(dimension, totalPlanets, fill::zeros);
-  mat v(dimension, totalPlanets, fill::zeros);
+  mat A(totalPlanets, dimension, fill::zeros);
+  mat A_new(totalPlanets, dimension, fill::zeros);
+  vec a(dimension, fill::zeros);
   double dt_pos = 0.5*dt*dt;
   double dt_vel = 0.5*dt;
+  double time = 0.0;
 
-  for (int i = 0; i < totalPlanets; i++){
-    planet planet = allPlanets[i];
-    a.col(i) = acceleration(i);
-    planet.position += dt*planet.velocity + dt_sqrd*a.col(i);
-  }
-  for (int i = 0; i < totalPlanets, i++){
-    
+  while (time < finalTime){
+    time += dt;
+
+    for (int i = 0; i < totalPlanets; i++){
+      planet& planet = allPlanets[i];
+      a = acceleration(i);
+      for (int k = 0; k < dimension; k++){
+        A(i,k) = a(k);
+        planet.position(k) += dt*planet.velocity(k) + dt_pos*A(i,k);
+      }
+    }
+
+    cout << A << endl;
+
+    for (int i = 0; i < totalPlanets; i++){
+      planet& planet = allPlanets[i];
+      a = acceleration(i);
+      for (int k = 0; k < dimension; k++){
+        A_new(i,k) = a(k);
+        planet.velocity(k) += dt_vel*(A_new(i,k) + A(i,k));
+      }
+    }
+
+    cout << A_new << endl;
   }
 }
 

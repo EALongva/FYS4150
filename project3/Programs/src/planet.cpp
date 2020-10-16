@@ -21,7 +21,7 @@ void planet::print_name()
 
 vec planet::distance(const planet& otherPlanet)
 {
-  return otherPlanet.position - position;
+  return position - otherPlanet.position;
 }
 
 vec planet::gravitationalForce(const planet& otherPlanet, double Gconst)

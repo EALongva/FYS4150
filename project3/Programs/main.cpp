@@ -50,9 +50,10 @@ int main(){
   ss.add_planet(Sun);
   ss.add_planet(Earth);
   cout << ss.allPlanets[0].mass << endl;
-  cout << ss.totalPlanets << endl;
-  cout << ss.dimension << endl;
+  cout << ss.allPlanets[1].position << endl;
   cout << ss.acceleration(0) << endl;
   ss.FixOriginCentreOfMass();
+  ss.velocityVerlet(5.6,10000);
+  cout << ss.allPlanets[1].position << endl;
 
 }

@@ -87,6 +87,7 @@ void solarSystem::velocityVerlet(double finalTime, int integrationPoints, string
   // Write positions to file
   ofile.open(outputfilename);
   ofile << setiosflags(ios::showpoint | ios::uppercase);
+  ofile << time << endl;
 
   // Find the initial acceleration
   for (int i = 0; i < totalPlanets; i++){
@@ -94,19 +95,21 @@ void solarSystem::velocityVerlet(double finalTime, int integrationPoints, string
     a = acceleration(i);
     for (int k = 0; k < dimension; k++){
       A_new(i,k) = a(k); // Store as new acceleration
+      ofile << planet.position[k]<< endl; // Write out initial planet position
     }
   }
 
   while (time < finalTime){ // Loop over each time step
     time += dt;
+    ofile << time << endl;
 
     for (int i = 0; i < totalPlanets; i++){
       planet& planet = allPlanets[i];
       for (int k = 0; k < dimension; k++){
         A(i,k) = A_new(i,k); // Set current acceleration to new acceleration from previous time step
         planet.position(k) += dt*planet.velocity(k) + dt_pos*A(i,k); // Calculate current position
+        ofile << planet.position[k]<< endl; // Write out planet position
       }
-      ofile << i << planet.position << endl; // Write out planet position
     }
 
     for (int i = 0; i < totalPlanets; i++){

@@ -61,6 +61,6 @@ double planet::kineticEnergy()
 double planet::potentialEnergy(const planet& otherPlanet, double Gconst)
 {
   vec r = distance(otherPlanet);
-  return -Gconst * mass * otherPlanet.mass / exp_minus*pow(norm(r), exp_minus);
+  return -Gconst * mass * otherPlanet.mass / (exp_minus*pow(norm(r), exp_minus));
 
 }

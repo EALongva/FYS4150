@@ -38,22 +38,29 @@ int main(){
 
   fclose(fp_init); //Close file with initial conditions
   fclose(fp_mass); //Close file with masses.
-  //cout << x[0] << endl;
+
   */
   vec v0Sun(2,fill::zeros);
   vec p0Sun("0,0");
   vec v0Earth("0,6.2832");
   vec p0Earth("1.0,0");
+
   planet Earth("Earth", 0.0003, p0Earth,v0Earth);
   planet Sun("Sun", 1.0, p0Sun, v0Sun);
+
   solarSystem ss(2, 4*9.87, 100);
   ss.add_planet(Sun);
   ss.add_planet(Earth);
+
+
   cout << ss.allPlanets[0].mass << endl;
   cout << ss.allPlanets[1].position << endl;
   cout << ss.acceleration(0) << endl;
+
   ss.FixOriginCentreOfMass();
-  ss.velocityVerlet(5.6,10000);
+
+  ss.velocityVerlet(5.6,10000,"out_positions.dat");
+
   cout << ss.allPlanets[1].position << endl;
 
 }

@@ -1,12 +1,15 @@
 #include "../include/solarSystem.hpp"
 #include "../include/planet.hpp"
 #include <iostream>
+#include <fstream>
+#include <iomanip>
 #include <cmath>
 #include "time.h"
-#include <typeinfo>
 
 using namespace arma;
 using namespace std;
+
+ofstream ofile;
 
 solarSystem::solarSystem(int dim, double G, double rad)
 {
@@ -35,14 +38,6 @@ planet solarSystem::get_planet(string planetName)
 
 void solarSystem::FixOriginCentreOfMass()
 {
-  planet Sun = get_planet("Sun");
-
-  // Updating the initial velocity of the Sun to make the total momentum zero
-  // (to keep the centre of mass fixed)
-  vec v0Sun (dimension, fill::zeros);
-  for (planet planet:allPlanets){ v0Sun -= planet.mass * planet.velocity; }
-  Sun.velocity = v0Sun/Sun.mass;
-
   // Finding the position of the centre of mass
   vec R (dimension, fill::zeros);
   for (planet planet:allPlanets){ R += planet.mass * planet.position;}
@@ -50,6 +45,14 @@ void solarSystem::FixOriginCentreOfMass()
 
   // Using the centre of mass as origin and updating initial positions
   for (planet planet:allPlanets){ planet.position -= R; }
+
+  planet Sun = get_planet("Sun");
+  // Updating the initial velocity of the Sun to make the total momentum zero
+  // (to keep the centre of mass fixed)
+  vec v0Sun (dimension, fill::zeros);
+  for (planet planet:allPlanets){ v0Sun -= planet.mass * planet.velocity; }
+  Sun.velocity = v0Sun/Sun.mass;
+
 }
 
 vec solarSystem::acceleration(int i)
@@ -70,7 +73,7 @@ vec solarSystem::acceleration(int i)
   return a;
 }
 
-void solarSystem::velocityVerlet(double finalTime, int integrationPoints)
+void solarSystem::velocityVerlet(double finalTime, int integrationPoints, string outputfilename)
 {
   double dt = finalTime/integrationPoints; // size of time step
 
@@ -80,6 +83,10 @@ void solarSystem::velocityVerlet(double finalTime, int integrationPoints)
   double dt_pos = 0.5*dt*dt;
   double dt_vel = 0.5*dt;
   double time = 0.0;
+
+
+  ofile.open(outputfilename);
+  ofile << setiosflags(ios::showpoint | ios::uppercase);
 
   while (time < finalTime){
     time += dt;
@@ -91,9 +98,9 @@ void solarSystem::velocityVerlet(double finalTime, int integrationPoints)
         A(i,k) = a(k);
         planet.position(k) += dt*planet.velocity(k) + dt_pos*A(i,k);
       }
+      ofile << i << planet.position << endl;
     }
 
-    cout << A << endl;
 
     for (int i = 0; i < totalPlanets; i++){
       planet& planet = allPlanets[i];
@@ -103,58 +110,6 @@ void solarSystem::velocityVerlet(double finalTime, int integrationPoints)
         planet.velocity(k) += dt_vel*(A_new(i,k) + A(i,k));
       }
     }
-
-    cout << A_new << endl;
   }
+  ofile.close();
 }
-
-
-/*
-void solarSystem::velocityVerlet(double finalTime, int integrationPoints)
-{
-  double dt = finalTime/integrationPoints; // size of time step
-
-  // Initializing force and acceleration vectors
-  double time = 0.0;
-  mat F(N,n,fill::zeros);
-  //mat a(n,fill::zeros);
-  //mat a_new(n,fill::zeros);
-  double dt_sqrd = 0.5*dt*dt;
-  double dt_half = 0.5*dt;
-
-  for (int i = 0; i < N; i++){
-    planet planet = allPlanets[i];
-    F.row(i).fill(0.0); // Setting the gravity forces equal to zero
-    for (int j = 0; j < N; j++){
-      planet otherPlanet = allPlanets[j];
-      F.row(i) += planet::gravitationalForce(otherPlanet, Gconst);
-    }
-
-
-
-
-
-
-
-
-  // Looping over all planets in time
-  while (time < finalTime) {
-    time += dt;
-    for (planet planet:allPlanets){
-      F.fill(0.0); // Setting the gravity forces equal to zero
-      for (planet otherPlanet:allPlanets){
-        F += (vec) planet::gravitationalForce(otherPlanet, Gconst);
-      }
-      a = (vec) F/planet.mass;
-      planet.position += dt*planet.velocity + dt_sqrd*a;
-      F.fill(0.0); // Setting the gravity forces equal to zero
-      for (planet otherPlanet:allPlanets){
-        F += planet::gravitationalForce(otherPlanet, Gconst);
-      }
-
-      a_new = F/planet.mass;
-      planet.velocity += dt_half*(a_new + a);
-    }
-  }
-}
-*/

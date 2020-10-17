@@ -47,6 +47,14 @@ int main(){
 
   vec beta_list = {2, 2.25, 2.5, 2.75, 3};
 
+  // planet Earth("Earth", 0.0003, p0Earth,v0Earth);
+  // planet Sun("Sun", 1.0, p0Sun, v0Sun);
+  //
+  // solarSystem SolarSystem(2, 4*9.87, 100);
+  // SolarSystem.add_planet(Sun);
+  // SolarSystem.add_planet(Earth);
+  // SolarSystem.velocityVerlet(5.6,10000,"out_positions.dat");
+
   for (double beta:beta_list){
     planet Earth("Earth", 0.0003, p0Earth,v0Earth, beta);
     planet Sun("Sun", 1.0, p0Sun, v0Sun, beta);

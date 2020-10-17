@@ -95,7 +95,7 @@ void solarSystem::velocityVerlet(double finalTime, int integrationPoints, string
     a = acceleration(i);
     for (int k = 0; k < dimension; k++){
       A_new(i,k) = a(k); // Store as new acceleration
-      ofile << planet.position(k) << endl; // Write out initial planet position 
+      ofile << planet.position(k) << endl; // Write out initial planet position
     }
   }
 

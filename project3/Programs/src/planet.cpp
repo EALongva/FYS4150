@@ -12,6 +12,23 @@ planet::planet(string name_in, double M, vec r, vec v)
     kinetic = 0.0;
     potential = 0.0;
     force = 0.0;
+    exponent = 2;
+    exp_plus = exponent+1;
+    exp_minus = exponent-1;
+}
+
+planet::planet(string name_in, double M, vec r, vec v, double beta)
+{
+    name = name_in;
+    mass = M;
+    position = r;
+    velocity = v;
+    kinetic = 0.0;
+    potential = 0.0;
+    force = 0.0;
+    exponent = beta;
+    exp_plus = exponent+1;
+    exp_minus = exponent-1;
 }
 
 void planet::print_name()
@@ -27,19 +44,8 @@ vec planet::distance(const planet& otherPlanet)
 vec planet::gravitationalForce(const planet& otherPlanet, double Gconst)
 {
   vec r = distance(otherPlanet);
-  return -Gconst * mass * otherPlanet.mass / pow(norm(r),3) * r;
+  return -Gconst * mass * otherPlanet.mass / pow(norm(r), exp_plus) * r;
 }
-
-// vec planet::gravitationalForce(const planet& otherPlanet, double Gconst)
-// {
-//   vec r = distance(otherPlanet);
-//   vec zerovec = r;
-//   zerovec.fill(0);
-//   if (norm(r)!=0){
-//     return -Gconst * mass * otherPlanet.mass / pow(norm(r),3) * r;
-//   }
-//   else {return zerovec;}
-// }
 
 vec planet::acceleration(const planet& otherPlanet, double Gconst)
 {
@@ -55,8 +61,6 @@ double planet::kineticEnergy()
 double planet::potentialEnergy(const planet& otherPlanet, double Gconst)
 {
   vec r = distance(otherPlanet);
-  if(norm(r)!=0){
-    return -Gconst * mass * otherPlanet.mass / norm(r);
-  }
-  else {return 0;}
+  return -Gconst * mass * otherPlanet.mass / exp_minus*pow(norm(r), exp_minus);
+
 }

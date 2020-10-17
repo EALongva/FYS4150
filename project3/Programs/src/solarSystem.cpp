@@ -36,21 +36,21 @@ planet solarSystem::get_planet(string planetName)
   return allPlanets[i];
 }
 
-void solarSystem::FixOriginCentreOfMass()
+void solarSystem::fixOriginCentreOfMass()
 {
   // Finding the position of the centre of mass
   vec R (dimension, fill::zeros);
-  for (planet planet:allPlanets){ R += planet.mass * planet.position;}
+  for (planet& planet:allPlanets){ R += planet.mass * planet.position;}
   R = R/totalMass;
 
   // Using the centre of mass as origin and updating initial positions
-  for (planet planet:allPlanets){ planet.position -= R; }
+  for (planet& planet:allPlanets){ planet.position -= R; }
 
   planet Sun = get_planet("Sun");
   // Updating the initial velocity of the Sun to make the total momentum zero
   // (to keep the centre of mass fixed)
   vec v0Sun (dimension, fill::zeros);
-  for (planet planet:allPlanets){ v0Sun -= planet.mass * planet.velocity; }
+  for (planet& planet:allPlanets){ v0Sun -= planet.mass * planet.velocity; }
   Sun.velocity = v0Sun/Sun.mass;
 
 }
@@ -75,39 +75,46 @@ vec solarSystem::acceleration(int i)
 
 void solarSystem::velocityVerlet(double finalTime, int integrationPoints, string outputfilename)
 {
-  double dt = finalTime/integrationPoints; // size of time step
+  double dt = finalTime/integrationPoints; // Size of time step
 
-  mat A(totalPlanets, dimension, fill::zeros);
-  mat A_new(totalPlanets, dimension, fill::zeros);
-  vec a(dimension, fill::zeros);
+  mat A(totalPlanets, dimension, fill::zeros); // Store acceleration for every planet each time step
+  mat A_new(totalPlanets, dimension, fill::zeros); // Store new acceleration for every planet each time step
+  vec a(dimension, fill::zeros); // Store output of acceleration function
   double dt_pos = 0.5*dt*dt;
   double dt_vel = 0.5*dt;
   double time = 0.0;
 
-
+  // Write positions to file
   ofile.open(outputfilename);
   ofile << setiosflags(ios::showpoint | ios::uppercase);
 
-  while (time < finalTime){
+  // Find the initial acceleration
+  for (int i = 0; i < totalPlanets; i++){
+    planet& planet = allPlanets[i];
+    a = acceleration(i);
+    for (int k = 0; k < dimension; k++){
+      A_new(i,k) = a(k); // Store as new acceleration
+    }
+  }
+
+  while (time < finalTime){ // Loop over each time step
     time += dt;
 
     for (int i = 0; i < totalPlanets; i++){
       planet& planet = allPlanets[i];
-      a = acceleration(i);
       for (int k = 0; k < dimension; k++){
-        A(i,k) = a(k);
-        planet.position(k) += dt*planet.velocity(k) + dt_pos*A(i,k);
+        A(i,k) = A_new(i,k); // Set current acceleration to new acceleration from previous time step
+        planet.position(k) += dt*planet.velocity(k) + dt_pos*A(i,k); // Calculate current position
       }
-      ofile << i << planet.position << endl;
+      ofile << i << planet.position << endl; // Write out planet position
     }
-
 
     for (int i = 0; i < totalPlanets; i++){
       planet& planet = allPlanets[i];
-      a = acceleration(i);
+      a = acceleration(i); // Calculate new acceleration based on current position
       for (int k = 0; k < dimension; k++){
         A_new(i,k) = a(k);
-        planet.velocity(k) += dt_vel*(A_new(i,k) + A(i,k));
+        planet.velocity(k) += dt_vel*(A_new(i,k) + A(i,k)); // Calculate current velocity
       }
     }
   }

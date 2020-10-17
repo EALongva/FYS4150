@@ -26,6 +26,6 @@ public:
   void add_planet(const planet& newPlanet);
   planet get_planet(std::string planetName);
   arma::vec acceleration(int i);
-  void FixOriginCentreOfMass();
+  void fixOriginCentreOfMass();
   void velocityVerlet(double finalTime, int integrationPoints, std::string outputfilename);
 };

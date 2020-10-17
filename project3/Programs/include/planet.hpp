@@ -16,9 +16,13 @@ public:
   double potential;
   double kinetic;
   double force;
+  double exponent;
+  double exp_plus;
+  double exp_minus;
 
   // Planet Initializer
   planet(std::string name_in, double M, arma::vec r, arma::vec v);
+  planet(std::string name_in, double M, arma::vec r, arma::vec v, double beta);
 
   // Functions
   void print_name();

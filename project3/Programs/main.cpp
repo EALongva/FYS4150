@@ -42,31 +42,33 @@ int main(){
 
   vec v0Sun(2,fill::zeros);
   vec p0Sun("0,0");
-  vec v0Earth("0,6.2832");
+  vec v0Earth("0, 5.0");
   vec p0Earth("1.0,0");
+  vec v0Merc("0, 12.44");
+  vec p0Merc("0.3075,0");
 
-  vec beta_list = {2, 2.25, 2.5, 2.75, 3};
+  planet Earth("Earth", 3.00348959632E-6, p0Earth,v0Earth);
+  planet Mercury("Mercury",0.16601E-6, p0Merc,v0Merc);
+  planet Sun("Sun", 1.0, p0Sun, v0Sun);
+  solarSystem SolarSystem(2, 4*9.869604401, 100);
+  SolarSystem.add_planet(Sun);
+  //SolarSystem.add_planet(Mercury);
+  SolarSystem.add_planet(Earth);
+  SolarSystem.velocityVerlet(5.6,100000,"out_positions.dat");
 
-  // planet Earth("Earth", 0.0003, p0Earth,v0Earth);
-  // planet Sun("Sun", 1.0, p0Sun, v0Sun);
+  // vec beta_list = {2, 2.25, 2.5, 2.75, 3};
+  // for (double beta:beta_list){
+  //   planet Earth("Earth", 0.0003, p0Earth,v0Earth, beta);
+  //   planet Sun("Sun", 1.0, p0Sun, v0Sun, beta);
   //
-  // solarSystem SolarSystem(2, 4*9.87, 100);
-  // SolarSystem.add_planet(Sun);
-  // SolarSystem.add_planet(Earth);
-  // SolarSystem.velocityVerlet(5.6,10000,"out_positions.dat");
-
-  for (double beta:beta_list){
-    planet Earth("Earth", 0.0003, p0Earth,v0Earth, beta);
-    planet Sun("Sun", 1.0, p0Sun, v0Sun, beta);
-
-    solarSystem SolarSystem(2, 4*9.87, 100);
-    SolarSystem.add_planet(Sun);
-    SolarSystem.add_planet(Earth);
-    string filename = "out_positions_beta_";
-    filename.append(to_string(beta));
-    SolarSystem.velocityVerlet(5.6,10000,filename);
-
-    cout << SolarSystem.allPlanets[1].position << endl;
-  }
+  //   solarSystem SolarSystem(2, 4*9.87, 100);
+  //   SolarSystem.add_planet(Sun);
+  //   SolarSystem.add_planet(Earth);
+  //   string filename = "out_positions_beta_";
+  //   filename.append(to_string(beta));
+  //   SolarSystem.velocityVerlet(5.0,100000,filename);
+  //
+  //   cout << SolarSystem.allPlanets[1].position << endl;
+  // }
 
 }

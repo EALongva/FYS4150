@@ -43,19 +43,19 @@ vec planet::distance(const planet& otherPlanet)
   return position - otherPlanet.position;
 }
 
-// vec planet::gravitationalForce(const planet& otherPlanet, double Gconst)
-// {
-//   vec r = distance(otherPlanet);
-//   return -Gconst * mass * otherPlanet.mass / pow(norm(r), exp_plus) * r;
-// }
-
 vec planet::gravitationalForce(const planet& otherPlanet, double Gconst)
 {
   vec r = distance(otherPlanet);
-  double l = specificAngularMomentum(otherPlanet);
-  double relcorr = 1 + 3 * pow(norm(l),2) / (pow(norm(r),2) * c2);
-  return -Gconst * mass * otherPlanet.mass / pow(norm(r), exp_plus) * relcorr * r;
+  return -Gconst * mass * otherPlanet.mass / pow(norm(r), exp_plus) * r;
 }
+
+// vec planet::gravitationalForce(const planet& otherPlanet, double Gconst)
+// {
+//   vec r = distance(otherPlanet);
+//   double l = specificAngularMomentum(otherPlanet);
+//   double relcorr = 1 + 3 * pow(norm(l),2) / (pow(norm(r),2) * c2);
+//   return -Gconst * mass * otherPlanet.mass / pow(norm(r), exp_plus) * relcorr * r;
+// }
 
 vec planet::acceleration(const planet& otherPlanet, double Gconst)
 {

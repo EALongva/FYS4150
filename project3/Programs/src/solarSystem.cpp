@@ -57,7 +57,7 @@ void solarSystem::fixOriginCentreOfMass()
 
 vec solarSystem::acceleration(int i)
 {
-  planet planet = allPlanets[i];
+  planet& planet = allPlanets[i];
   vec a(dimension,fill::zeros);
   vec F(dimension,fill::zeros);
   vec zerovec(dimension, fill::zeros);
@@ -73,18 +73,31 @@ vec solarSystem::acceleration(int i)
   return a;
 }
 
+double solarSystem::potentialEnergy(int i)
+{
+  planet& planet = allPlanets[i];
+  double PE = 0.0;
+  for (int j = 0; j < totalPlanets; j++){
+    if (i != j){
+      PE += planet.potentialEnergy(allPlanets[j], Gconst);
+    }
+  }
+  return PE;
+}
+
 void solarSystem::velocityVerlet(double finalTime, int integrationPoints, string outputfilename)
 {
   double dt = finalTime/integrationPoints; // Size of time step
 
   mat A(totalPlanets, dimension, fill::zeros); // Store acceleration for every planet each time step
   mat A_new(totalPlanets, dimension, fill::zeros); // Store new acceleration for every planet each time step
+  double PE; // Store potential energy for each step
   vec a(dimension, fill::zeros); // Store output of acceleration function
   double dt_pos = 0.5*dt*dt;
   double dt_vel = 0.5*dt;
   double time = 0.0;
 
-  // Write positions to file
+  // Open file for output values
   ofile.open(outputfilename);
   ofile << setiosflags(ios::showpoint | ios::uppercase);
   ofile << time << endl;
@@ -97,6 +110,15 @@ void solarSystem::velocityVerlet(double finalTime, int integrationPoints, string
       A_new(i,k) = a(k); // Store as new acceleration
       ofile << planet.position[k]<< endl; // Write out initial planet position
     }
+  }
+
+  for (int i = 0; i < totalPlanets; i++){
+    planet& planet = allPlanets[i];
+    ofile << planet.kineticEnergy() << endl; // Write out initial kinetic energy
+    PE = potentialEnergy(i);
+    ofile << PE << endl; // Write out initial potential energy
+    ofile << planet.specificAngularMomentum(allPlanets[0]) << endl; // Write out angular momentum
+    //ofile << planet.specificAngularMomentum() << endl;
   }
 
   while (time < finalTime){ // Loop over each time step
@@ -114,11 +136,16 @@ void solarSystem::velocityVerlet(double finalTime, int integrationPoints, string
 
     for (int i = 0; i < totalPlanets; i++){
       planet& planet = allPlanets[i];
+      PE = potentialEnergy(i);
       a = acceleration(i); // Calculate new acceleration based on current position
       for (int k = 0; k < dimension; k++){
         A_new(i,k) = a(k);
         planet.velocity(k) += dt_vel*(A_new(i,k) + A(i,k)); // Calculate current velocity
       }
+      ofile << planet.kineticEnergy() << endl;
+      ofile << PE << endl;
+      ofile << planet.specificAngularMomentum(allPlanets[0]) << endl;
+      //ofile << planet.specificAngularMomentum() << endl;
     }
   }
   ofile.close();

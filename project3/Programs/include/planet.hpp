@@ -11,6 +11,7 @@ public:
   // Planet Properties
   std::string name;
   double mass;
+  double c2;
   arma::vec position;
   arma::vec velocity;
   double potential;
@@ -29,6 +30,8 @@ public:
   arma::vec distance(const planet& otherPlanet);
   arma::vec gravitationalForce(const planet& otherPlanet, double Gconst);
   arma::vec acceleration(const planet& otherPlanet, double Gconst);
+  double specificAngularMomentum(const planet& otherPlanet);
+  //double specificAngularMomentum();
   double kineticEnergy();
   double potentialEnergy(const planet& otherPlanet, double Gconst);
 };

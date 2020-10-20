@@ -63,34 +63,34 @@ vec planet::acceleration(const planet& otherPlanet, double Gconst)
   return gForce / mass;
 }
 
-double planet::specificAngularMomentum(const planet& otherPlanet)
-{
-  vec L;
-  vec r = distance(otherPlanet);
-  if (r.n_elem <= 2){
-    vec rnew = {r(0), r(1), 0};
-    vec vnew = {velocity(0), velocity(1), 0};
-    L = cross(rnew, vnew);
-  }
-  else{
-    L = cross(r, velocity);
-  }
-  return norm(L);
-}
-
-// double planet::specificAngularMomentum()
+// double planet::specificAngularMomentum(const planet& otherPlanet)
 // {
 //   vec L;
-//   if (position.n_elem <= 2){
-//     vec r = {position(0), position(1), 0};
-//     vec v = {velocity(0), velocity(1), 0};
-//     L = cross(r, v);
+//   vec r = distance(otherPlanet);
+//   if (r.n_elem <= 2){
+//     vec rnew = {r(0), r(1), 0};
+//     vec vnew = {velocity(0), velocity(1), 0};
+//     L = cross(rnew, vnew);
 //   }
 //   else{
-//     L = cross(position, velocity);
+//     L = cross(r, velocity);
 //   }
 //   return norm(L);
 // }
+
+double planet::specificAngularMomentum()
+{
+  vec L;
+  if (position.n_elem <= 2){
+    vec r = {position(0), position(1), 0};
+    vec v = {velocity(0), velocity(1), 0};
+    L = cross(r, v);
+  }
+  else{
+    L = cross(position, velocity);
+  }
+  return norm(L);
+}
 
 double planet::kineticEnergy()
 {

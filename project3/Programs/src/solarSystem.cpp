@@ -117,8 +117,8 @@ void solarSystem::velocityVerlet(double finalTime, int integrationPoints, string
     ofile << planet.kineticEnergy() << endl; // Write out initial kinetic energy
     PE = potentialEnergy(i);
     ofile << PE << endl; // Write out initial potential energy
-    ofile << planet.specificAngularMomentum(allPlanets[0]) << endl; // Write out angular momentum
-    //ofile << planet.specificAngularMomentum() << endl;
+    //ofile << planet.specificAngularMomentum(allPlanets[0]) << endl; // Write out angular momentum
+    ofile << planet.specificAngularMomentum() << endl;
   }
 
   while (time < finalTime){ // Loop over each time step
@@ -144,8 +144,8 @@ void solarSystem::velocityVerlet(double finalTime, int integrationPoints, string
       }
       ofile << planet.kineticEnergy() << endl;
       ofile << PE << endl;
-      ofile << planet.specificAngularMomentum(allPlanets[0]) << endl;
-      //ofile << planet.specificAngularMomentum() << endl;
+      //ofile << planet.specificAngularMomentum(allPlanets[0]) << endl;
+      ofile << planet.specificAngularMomentum() << endl;
     }
   }
   ofile.close();

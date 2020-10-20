@@ -30,8 +30,8 @@ public:
   arma::vec distance(const planet& otherPlanet);
   arma::vec gravitationalForce(const planet& otherPlanet, double Gconst);
   arma::vec acceleration(const planet& otherPlanet, double Gconst);
-  double specificAngularMomentum(const planet& otherPlanet);
-  //double specificAngularMomentum();
+  //double specificAngularMomentum(const planet& otherPlanet);
+  double specificAngularMomentum();
   double kineticEnergy();
   double potentialEnergy(const planet& otherPlanet, double Gconst);
 };

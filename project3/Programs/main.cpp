@@ -52,8 +52,9 @@ int main(){
   planet Sun("Sun", 1.0, p0Sun, v0Sun);
   solarSystem SolarSystem(2, 4*9.869604401, 100);
   SolarSystem.add_planet(Sun);
-  //SolarSystem.add_planet(Mercury);
-  SolarSystem.add_planet(Earth);
+  SolarSystem.add_planet(Mercury);
+  //SolarSystem.add_planet(Earth);
+  SolarSystem.fixOriginCentreOfMass();
   SolarSystem.velocityVerlet(5.6,100000,"out_positions.dat");
 
   // vec beta_list = {2, 2.25, 2.5, 2.75, 3};

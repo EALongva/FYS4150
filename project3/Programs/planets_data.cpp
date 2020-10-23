@@ -21,7 +21,7 @@ int main(){
   std::string name_sun;
   name_sun = "Sun";
   double M_sun;
-  double M_sun0;
+  double M_sun0; // the mass for the sun that we use!!
   M_sun = 2*std::pow(10,30);
   M_sun0 = 1.0;
 

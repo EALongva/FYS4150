@@ -169,14 +169,16 @@ void solarSystem::velocityVerlet(double finalTime, int integrationPoints, string
 }
 
 
-void solarSystem::velocityVerlet_relcorr(double finalTime, int integrationPoints, string outputfilename)
+void solarSystem::perihelionAngle_relcorr(double finalTime, int integrationPoints, string outputfilename)
 {
   double dt = finalTime/integrationPoints; // Size of time step
 
   mat A(totalPlanets, dimension, fill::zeros); // Store acceleration for every planet each time step
   mat A_new(totalPlanets, dimension, fill::zeros); // Store new acceleration for every planet each time step
-  double PE; // Store potential energy for each step
   vec a(dimension, fill::zeros); // Store output of acceleration function
+  mat p(dimension, fill::zeros); // Store planet position from previous step
+  vec d(3, fill::zeros); // Store planet-Sun distance for three steps
+
   double dt_pos = 0.5*dt*dt;
   double dt_vel = 0.5*dt;
   double time = 0.0;
@@ -185,6 +187,12 @@ void solarSystem::velocityVerlet_relcorr(double finalTime, int integrationPoints
   ofile.open(outputfilename);
   ofile << setiosflags(ios::showpoint | ios::uppercase);
   ofile << time << endl;
+  for (int k = 0; k < dimension; k++){
+    p(k) = allPlanets[1].position(k);
+    ofile << p(k) << endl;} // Write out initial planet positon
+
+  d(2) = norm(allPlanets[0].position - allPlanets[1].position);
+  for (int i = 0; i < 2; i++){d(i) = d(2);}
 
   // Find the initial acceleration
   for (int i = 0; i < totalPlanets; i++){
@@ -192,43 +200,40 @@ void solarSystem::velocityVerlet_relcorr(double finalTime, int integrationPoints
     a = acceleration_relcorr(i);
     for (int k = 0; k < dimension; k++){
       A_new(i,k) = a(k); // Store as new acceleration
-      ofile << planet.position(k) << endl; // Write out initial planet position
     }
   }
 
-  for (int i = 0; i < totalPlanets; i++){
-    planet& planet = allPlanets[i];
-    ofile << planet.kineticEnergy() << endl; // Write out initial kinetic energy
-    PE = potentialEnergy(i);
-    ofile << PE << endl; // Write out initial potential energy
-    ofile << planet.specificAngularMomentum(allPlanets[0]) << endl; // Write out initial angular momentum
-  }
 
   while (time < finalTime){ // Loop over each time step
     time += dt;
-    ofile << time << endl;
+    d(0) = d(1);
+    d(1) = d(2);
 
     for (int i = 0; i < totalPlanets; i++){
       planet& planet = allPlanets[i];
       for (int k = 0; k < dimension; k++){
         A(i,k) = A_new(i,k); // Set current acceleration to new acceleration from previous time step
         planet.position(k) += dt*planet.velocity(k) + dt_pos*A(i,k); // Calculate current position
-        ofile << planet.position(k) << endl; // Write out planet position
       }
     }
 
     for (int i = 0; i < totalPlanets; i++){
       planet& planet = allPlanets[i];
-      PE = potentialEnergy(i);
       a = acceleration_relcorr(i); // Calculate new acceleration based on current position
       for (int k = 0; k < dimension; k++){
         A_new(i,k) = a(k);
         planet.velocity(k) += dt_vel*(A_new(i,k) + A(i,k)); // Calculate current velocity
       }
-      ofile << planet.kineticEnergy() << endl; // Write out kinetic energy
-      ofile << PE << endl; // Write out potential energy
-      ofile << planet.specificAngularMomentum(allPlanets[0]) << endl; // Write out angular momentum
     }
+
+    d(2) = norm(allPlanets[0].position - allPlanets[1].position);
+    if (d(1) < d(0) && d(1) < d(2)){
+      ofile << time << endl;
+      for (int k = 0; k < dimension; k++){
+        ofile << p(k)<< endl;} // Write out perihelion position of Mercury
+    }
+
+    for (int k = 0; k < dimension; k++){p(k) = allPlanets[1].position(k)}
   }
   ofile.close();
 }

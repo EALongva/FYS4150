@@ -14,6 +14,7 @@ name = ["2", "2.25", "2.5", "2.75", "3"]
 raw = pd.read_csv(inputpath+"ES_beta2_v2pi_t2N10-e5.dat", header=None)
 n_steps = int(len(raw)/(1+(dim+3)*Nbodies))
 
+"""
 t = np.zeros(n_steps)
 x_positions = np.zeros((n_steps, Nbodies,len(beta)))
 y_positions = np.zeros((n_steps, Nbodies,len(beta)))
@@ -22,7 +23,8 @@ planet_PE = np.zeros((n_steps, Nbodies, len(beta)))
 planet_L = np.zeros((n_steps, Nbodies, len(beta)))
 
 for b in range(0,len(beta)):
-    raw = pd.read_csv(inputpath+"ES_beta"+name[b]+"_v2pi_t2N10e-5.dat",header=None)
+    raw = pd.read_csv(inputpath+"earthsun_beta"+name[b]+"_t2N10e-5.dat",header=None)
+    #raw = pd.read_csv(inputpath+"ES_beta"+name[b]+"_v2pi_t2N10e-5.dat",header=None)
 
     for i in range(0, n_steps):
         int_t = i*(1+(dim+3)*Nbodies)
@@ -98,11 +100,11 @@ plt.xlabel('Time [years]')
 plt.ylabel('Specific Angular Momentum [AU²/year]')
 plt.title(r'The Specific Angular Momentum of the Earth')
 plt.legend()
-plt.savefig(figpath+"ES_angmom_beta3.png",bbox_inches = 'tight')
+plt.savefig(figpath+"ES_beta3_angmom.png",bbox_inches = 'tight')
 
 plt.show()
 """
-
+"""
 # Plotting orbits
 
 plt.figure()

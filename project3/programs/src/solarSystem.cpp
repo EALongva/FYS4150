@@ -169,6 +169,76 @@ void solarSystem::velocityVerlet(double finalTime, int integrationPoints, string
 }
 
 
+void solarSystem::perihelionAngle(double finalTime, int integrationPoints, string outputfilename)
+{
+  double dt = finalTime/integrationPoints; // Size of time step
+
+  mat A(totalPlanets, dimension, fill::zeros); // Store acceleration for every planet each time step
+  mat A_new(totalPlanets, dimension, fill::zeros); // Store new acceleration for every planet each time step
+  vec a(dimension, fill::zeros); // Store output of acceleration function
+  vec p(dimension, fill::zeros); // Store planet position from previous step
+  vec d(3, fill::zeros); // Store planet-Sun distance for three steps
+
+  double dt_pos = 0.5*dt*dt;
+  double dt_vel = 0.5*dt;
+  double time = 0.0;
+
+  // Open file for output values
+  ofile.open(outputfilename);
+  ofile << setiosflags(ios::showpoint | ios::uppercase);
+  ofile << time << endl; // Write out initial time
+  for (int k = 0; k < dimension; k++){
+    p(k) = allPlanets[1].position(k); // Store initial planet position
+    ofile << p(k) << endl;} // Write out initial planet positon
+
+  d(2) = norm(allPlanets[0].position - allPlanets[1].position); // Find initial planet-Sun distance
+  for (int i = 0; i < 2; i++){d(i) = d(2);} // Fill out distance vector
+
+  // Find the initial acceleration
+  for (int i = 0; i < totalPlanets; i++){
+    planet& planet = allPlanets[i];
+    a = acceleration(i);
+    for (int k = 0; k < dimension; k++){
+      A_new(i,k) = a(k); // Store as new acceleration
+    }
+  }
+
+  while (time < finalTime){ // Loop over each time step
+    time += dt;
+    // Update distance vector
+    d(0) = d(1);
+    d(1) = d(2);
+
+    for (int i = 0; i < totalPlanets; i++){
+      planet& planet = allPlanets[i];
+      for (int k = 0; k < dimension; k++){
+        A(i,k) = A_new(i,k); // Set current acceleration to new acceleration from previous time step
+        planet.position(k) += dt*planet.velocity(k) + dt_pos*A(i,k); // Calculate current position
+      }
+    }
+
+    for (int i = 0; i < totalPlanets; i++){
+      planet& planet = allPlanets[i];
+      a = acceleration(i); // Calculate new acceleration based on current position
+      for (int k = 0; k < dimension; k++){
+        A_new(i,k) = a(k);
+        planet.velocity(k) += dt_vel*(A_new(i,k) + A(i,k)); // Calculate current velocity
+      }
+    }
+
+    d(2) = norm(allPlanets[0].position - allPlanets[1].position); // Calculate current planet-Sun distance
+
+    if (d(1) < d(0) && d(1) < d(2)){ // Check if previous planet-Sun distance is smaller than current and the one before
+      ofile << time << endl;
+      for (int k = 0; k < dimension; k++){
+        ofile << p(k) << endl;} // Write out perihelion position of Mercury
+    }
+
+    for (int k = 0; k < dimension; k++){p(k) = allPlanets[1].position(k);} // Store position of planet
+  }
+  ofile.close();
+}
+
 void solarSystem::perihelionAngle_relcorr(double finalTime, int integrationPoints, string outputfilename)
 {
   double dt = finalTime/integrationPoints; // Size of time step
@@ -186,13 +256,13 @@ void solarSystem::perihelionAngle_relcorr(double finalTime, int integrationPoint
   // Open file for output values
   ofile.open(outputfilename);
   ofile << setiosflags(ios::showpoint | ios::uppercase);
-  ofile << time << endl;
+  ofile << time << endl; // Write out initial time
+  p = allPlanets[1].position; // Store initial planet position
   for (int k = 0; k < dimension; k++){
-    p(k) = allPlanets[1].position(k);
     ofile << p(k) << endl;} // Write out initial planet positon
 
-  d(2) = norm(allPlanets[0].position - allPlanets[1].position);
-  for (int i = 0; i < 2; i++){d(i) = d(2);}
+  d(2) = norm(allPlanets[0].position - allPlanets[1].position); // Find initial planet-Sun distance
+  for (int i = 0; i < 2; i++){d(i) = d(2);} // Fill out distance vector
 
   // Find the initial acceleration
   for (int i = 0; i < totalPlanets; i++){
@@ -203,9 +273,9 @@ void solarSystem::perihelionAngle_relcorr(double finalTime, int integrationPoint
     }
   }
 
-
   while (time < finalTime){ // Loop over each time step
     time += dt;
+    // Update distance vector
     d(0) = d(1);
     d(1) = d(2);
 
@@ -226,14 +296,137 @@ void solarSystem::perihelionAngle_relcorr(double finalTime, int integrationPoint
       }
     }
 
-    d(2) = norm(allPlanets[0].position - allPlanets[1].position);
-    if (d(1) < d(0) && d(1) < d(2)){
+    d(2) = norm(allPlanets[0].position - allPlanets[1].position); // Calculate current planet-Sun distance
+
+    if (d(1) < d(0) && d(1) < d(2)){ // Check if previous planet-Sun distance is smaller than current and the one before
       ofile << time << endl;
       for (int k = 0; k < dimension; k++){
-        ofile << p(k)<< endl;} // Write out perihelion position of Mercury
+        ofile << p(k) << endl;} // Write out perihelion position of Mercury
     }
 
-    for (int k = 0; k < dimension; k++){p(k) = allPlanets[1].position(k);}
+    p = allPlanets[1].position; // Store position of planet
+  }
+  ofile.close();
+}
+
+void solarSystem::perihelionAngle2(double finalTime, int integrationPoints, string outputfilename)
+{
+  double dt = finalTime/integrationPoints; // Size of time step
+
+  vec a(dimension, fill::zeros); // Store acceleration for each time step
+  vec a_new(dimension, fill::zeros); // Store new acceleration for each time step
+  vec p(dimension, fill::zeros); // Store planet position from previous step
+  vec d(3, fill::zeros); // Store planet-Sun distance for three steps
+
+  double dt_pos = 0.5*dt*dt;
+  double dt_vel = 0.5*dt;
+  double time = 0.0;
+
+  planet& Sun = allPlanets[0];
+  planet& planet = allPlanets[1];
+
+  // Open file for output values
+  ofile.open(outputfilename);
+  ofile << setiosflags(ios::showpoint | ios::uppercase);
+  ofile << time << endl; // Write out initial time
+  p = planet.position; // Store initial planet position
+  for (int k = 0; k < dimension; k++){
+    ofile << p(k) << endl;} // Write out initial planet positon
+
+  d(2) = norm(Sun.position - planet.position); // Find initial planet-Sun distance
+  for (int i = 0; i < 2; i++){d(i) = d(2);} // Fill out distance vector
+
+  // Find the initial acceleration
+  a = planet.gravitationalForce(Sun, Gconst)/planet.mass;
+
+  while (time < finalTime){ // Loop over each time step
+    time += dt;
+    // Update distance vector
+    d(0) = d(1);
+    d(1) = d(2);
+
+
+    for (int k = 0; k < dimension; k++){
+      planet.position(k) += dt*planet.velocity(k) + dt_pos*(a,k); // Calculate current position
+    }
+
+    a_new = planet.gravitationalForce(Sun, Gconst)/planet.mass; // Calculate new acceleration based on current position
+
+    for (int k = 0; k < dimension; k++){
+      planet.velocity(k) += dt_vel*(a_new(k) + a(k)); // Calculate current velocity
+      a(k) = a_new(k); // Store the new acceleration for the next time step
+    }
+
+    d(2) = norm(Sun.position - planet.position); // Calculate current planet-Sun distance
+
+    if (d(1) < d(0) && d(1) < d(2)){ // Check if previous planet-Sun distance is smaller than current and the one before
+      ofile << time << endl;
+      for (int k = 0; k < dimension; k++){
+        ofile << p(k) << endl;} // Write out perihelion position of Mercury
+    }
+
+    p = planet.position; // Store position of planet
+  }
+  ofile.close();
+}
+
+void solarSystem::perihelionAngle_relcorr2(double finalTime, int integrationPoints, string outputfilename)
+{
+  double dt = finalTime/integrationPoints; // Size of time step
+
+  vec a(dimension, fill::zeros); // Store acceleration for each time step
+  vec a_new(dimension, fill::zeros); // Store new acceleration for each time step
+  vec p(dimension, fill::zeros); // Store planet position from previous step
+  vec d(3, fill::zeros); // Store planet-Sun distance for three steps
+
+  double dt_pos = 0.5*dt*dt;
+  double dt_vel = 0.5*dt;
+  double time = 0.0;
+
+  planet& Sun = allPlanets[0];
+  planet& planet = allPlanets[1];
+
+  // Open file for output values
+  ofile.open(outputfilename);
+  ofile << setiosflags(ios::showpoint | ios::uppercase);
+  ofile << time << endl; // Write out initial time
+  p = planet.position; // Store initial planet position
+  for (int k = 0; k < dimension; k++){
+    ofile << p(k) << endl;} // Write out initial planet positon
+
+  d(2) = norm(Sun.position - planet.position); // Find initial planet-Sun distance
+  for (int i = 0; i < 2; i++){d(i) = d(2);} // Fill out distance vector
+
+  // Find the initial acceleration
+  a = planet.gravitationalForce_relcorr(Sun, Gconst)/planet.mass;
+
+  while (time < finalTime){ // Loop over each time step
+    time += dt;
+    // Update distance vector
+    d(0) = d(1);
+    d(1) = d(2);
+
+
+    for (int k = 0; k < dimension; k++){
+      planet.position(k) += dt*planet.velocity(k) + dt_pos*(a,k); // Calculate current position
+    }
+
+    a_new = planet.gravitationalForce_relcorr(Sun, Gconst)/planet.mass; // Calculate new acceleration based on current position
+
+    for (int k = 0; k < dimension; k++){
+      planet.velocity(k) += dt_vel*(a_new(k) + a(k)); // Calculate current velocity
+      a(k) = a_new(k); // Store the new acceleration for the next time step
+    }
+
+    d(2) = norm(Sun.position - planet.position); // Calculate current planet-Sun distance
+
+    if (d(1) < d(0) && d(1) < d(2)){ // Check if previous planet-Sun distance is smaller than current and the one before
+      ofile << time << endl;
+      for (int k = 0; k < dimension; k++){
+        ofile << p(k) << endl;} // Write out perihelion position of Mercury
+    }
+
+    p = planet.position; // Store position of planet
   }
   ofile.close();
 }

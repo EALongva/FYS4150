@@ -7,7 +7,7 @@ planet::planet(string name_in, double M, vec r, vec v)
 {
     name = name_in;
     mass = M;
-    c2 = 3992754938.0625; // Squared speed of light in vaccuum [AU/year]
+    c2 = 3987291025; // Squared speed of light in vaccuum [AU²/year²]
     position = r;
     velocity = v;
     kinetic = 0.0;
@@ -21,7 +21,7 @@ planet::planet(string name_in, double M, vec r, vec v)
 planet::planet(string name_in, double M, vec r, vec v, double beta)
 {
     name = name_in;
-    c2 = 3992754938.0625; // Squared speed of light in vaccuum [AU/year]
+    c2 = 3987291025; // Squared speed of light in vaccuum [AU²/year²]
     mass = M;
     position = r;
     velocity = v;
@@ -52,8 +52,9 @@ vec planet::gravitationalForce(const planet& otherPlanet, double Gconst)
 vec planet::gravitationalForce_relcorr(const planet& otherPlanet, double Gconst)
 {
   vec r = distance(otherPlanet);
+  //double l = specificAngularMomentum(otherPlanet);
   double l = specificAngularMomentum(otherPlanet);
-  double relcorr = 1 + 3 * pow(norm(l),2) / (pow(norm(r),2) * c2);
+  double relcorr = 1 + ((3*l*l) / (pow(norm(r),2) * c2));
   return -Gconst * mass * otherPlanet.mass / pow(norm(r), exp_plus) * relcorr * r;
 }
 
@@ -77,20 +78,6 @@ double planet::specificAngularMomentum(const planet& otherPlanet)
   }
   return norm(L);
 }
-
-// double planet::specificAngularMomentum()
-// {
-//   vec L;
-//   if (position.n_elem <= 2){
-//     vec r = {position(0), position(1), 0};
-//     vec v = {velocity(0), velocity(1), 0};
-//     L = cross(r, v);
-//   }
-//   else{
-//     L = cross(position, velocity);
-//   }
-//   return norm(L);
-// }
 
 double planet::kineticEnergy()
 {

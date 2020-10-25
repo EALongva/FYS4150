@@ -19,16 +19,18 @@ COMPILE = True if "-compile" in args else False
 if COMPILE: args.remove("-compile")
 
 # execute task1
-if program == "test":
+if program == "test_methods":
 
     if COMPILE:
-        res = subprocess.run(["g++", "-std=c++17", "-c", "test.cpp"])
-        res = subprocess.run(["g++", "-std=c++17", "-c", "src/utils.cpp"])
-        res = subprocess.run(["g++", "-std=c++17", "test.o", "utils.o" \
-        , "-o", "test.x", "-l", "armadillo"])
-        res = subprocess.run(["rm", "test.o", "utils.o"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "test/test.cpp", "-O3"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/planet.cpp", "-O3"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/solarSystem.cpp", "-O3"])
+        res = subprocess.run(["g++", "-std=c++17", "test.o", "planet.o", "solarSystem.o" \
+        , "-o", "test.x", "-l", "armadillo", "-O3"])
+        res = subprocess.run(["rm", "test.o", "planet.o", "solarSystem.o"])
 
     res = subprocess.run(["./test.x"] + args)
+    res = subprocess.run(["python", "test/testplot.py"])
 
 elif program == "sstest":
 

@@ -176,7 +176,7 @@ void solarSystem::perihelionAngle_relcorr(double finalTime, int integrationPoint
   mat A(totalPlanets, dimension, fill::zeros); // Store acceleration for every planet each time step
   mat A_new(totalPlanets, dimension, fill::zeros); // Store new acceleration for every planet each time step
   vec a(dimension, fill::zeros); // Store output of acceleration function
-  mat p(dimension, fill::zeros); // Store planet position from previous step
+  vec p(dimension, fill::zeros); // Store planet position from previous step
   vec d(3, fill::zeros); // Store planet-Sun distance for three steps
 
   double dt_pos = 0.5*dt*dt;
@@ -233,7 +233,144 @@ void solarSystem::perihelionAngle_relcorr(double finalTime, int integrationPoint
         ofile << p(k)<< endl;} // Write out perihelion position of Mercury
     }
 
-    for (int k = 0; k < dimension; k++){p(k) = allPlanets[1].position(k)}
+    for (int k = 0; k < dimension; k++){p(k) = allPlanets[1].position(k);}
   }
   ofile.close();
 }
+
+
+
+void solarSystem::euler_(double T, int N)
+{
+
+  // set up the evolution cube 'evo' containing matrices with r on the
+  // columns and time steps along the rows, each slice of the cube represents
+  // a planets evolution, we have one evo cube for position and one for velocity
+
+  pos_evo = arma::cube(dimension, N, totalPlanets, arma::fill::zeros);
+  vel_evo = arma::cube(dimension, N, totalPlanets, arma::fill::zeros);
+
+  // insert the initial positions and velocities
+  for (int k = 0; k < totalPlanets; k++){
+    pos_evo.slice(k).col(0) = allPlanets[k].position;
+    vel_evo.slice(k).col(0) = allPlanets[k].velocity;
+  }
+
+  // calculating time step dt, and printing it
+  double dt = T / ((double) N);
+  std::cout << "time step: " << dt << std::endl;
+
+  // matrix containing the current acceleration of all planet objects
+  arma::mat A( dimension, totalPlanets, arma::fill::zeros);
+
+
+  // running the simulation for N time steps, and saving all data in evo cubes
+  for (int i = 0; i < N-1; i++){
+
+    for (int nr1 = 0; nr1 < totalPlanets; nr1++){
+      for (int nr2 = 0; nr2 < totalPlanets; nr2++){
+
+        // selecting a planet (nr1) and then for each planet object NOT planet
+        // nr1, calculate the acceleration contribution from nr2 on nr1
+
+        if ( nr1 != nr2 ){
+          A.col(nr1) += allPlanets[nr1].acceleration(allPlanets[nr2], Gconst);
+        }
+      }
+    }
+
+    // computing new positions and velocities using the supreme Eulers method
+
+    for (int j = 0; j < totalPlanets; j++){
+
+      pos_evo.slice(j).col(i+1) = pos_evo.slice(j).col(i) + dt*vel_evo.slice(j).col(i);
+      vel_evo.slice(j).col(i+1) = vel_evo.slice(j).col(i) + dt*A.col(j);
+
+      allPlanets[j].position = pos_evo.slice(j).col(i+1);
+      allPlanets[j].velocity = vel_evo.slice(j).col(i+1);
+
+
+      // reset acceleration matrix A
+      A.col(j) = A.col(j)*0;
+
+    }
+  }
+
+}
+
+void solarSystem::vv_(double T, int N)
+{
+  // set up the evolution cube 'evo' containing matrices with r on the
+  // columns and time steps along the rows, each slice of the cube represents
+  // a planets evolution, we have one evo cube for position and one for velocity
+
+  pos_evo = arma::cube(dimension, N, totalPlanets, arma::fill::zeros);
+  vel_evo = arma::cube(dimension, N, totalPlanets, arma::fill::zeros);
+
+  // insert the initial positions and velocities
+  for (int k = 0; k < totalPlanets; k++){
+    pos_evo.slice(k).col(0) = allPlanets[k].position;
+    vel_evo.slice(k).col(0) = allPlanets[k].velocity;
+  }
+
+  double dt = T / ((double) N);
+
+  arma::mat A( dimension, totalPlanets, arma::fill::zeros);
+  arma::mat A_new( dimension, totalPlanets, arma::fill::zeros);
+
+  for (int nr1 = 0; nr1 < totalPlanets; nr1++){
+    for (int nr2 = 0; nr2 < totalPlanets; nr2++){
+
+      if ( nr1 != nr2 ){
+        A.col(nr1) += allPlanets[nr1].acceleration(allPlanets[nr2], Gconst);
+      }
+    }
+  }
+
+  for (int i = 0; i < N-1; i++){
+
+    for (int j = 0; j < totalPlanets; j++){
+
+      pos_evo.slice(j).col(i+1) = pos_evo.slice(j).col(i) + dt*vel_evo.slice(j).col(i) + dt*dt*0.5*A.col(j);
+
+      allPlanets[j].position = pos_evo.slice(j).col(i+1);
+      allPlanets[j].velocity = vel_evo.slice(j).col(i+1);
+
+
+    }
+
+    for (int nr1 = 0; nr1 < totalPlanets; nr1++){
+      for (int nr2 = 0; nr2 < totalPlanets; nr2++){
+
+        if ( nr1 != nr2 ){
+          A_new.col(nr1) += allPlanets[nr1].acceleration(allPlanets[nr2], Gconst);
+        }
+
+      }
+    }
+
+    for (int j = 0; j < totalPlanets; j++){
+
+      vel_evo.slice(j).col(i+1) = vel_evo.slice(j).col(i) + dt*0.5*(A_new.col(j) + A.col(j));
+
+      // set A = A_new, reset acceleration matrix A_new
+      A.col(j) = A_new.col(j);
+      A_new.col(j) = A_new.col(j)*0;
+
+    }
+
+
+  }
+
+}
+
+void solarSystem::reset_evolution()
+{
+  for (int i = 0; i < totalPlanets; i++ ){
+    allPlanets[i].position = pos_evo.slice(i).col(0);
+    allPlanets[i].velocity = vel_evo.slice(i).col(0);
+  }
+}
+
+
+//

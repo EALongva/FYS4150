@@ -1,3 +1,6 @@
+#ifndef SS_H
+#define SS_H
+
 #include "../include/planet.hpp"
 #include <vector>
 #include <map>
@@ -19,6 +22,9 @@ public:
   double totalPotential;
   double Gconst;
 
+  arma::cube pos_evo;
+  arma::cube vel_evo;
+
   // Solar System Initializer
   solarSystem(int dim, double G, double rad);
 
@@ -31,4 +37,10 @@ public:
   void fixOriginCentreOfMass();
   void velocityVerlet(double finalTime, int integrationPoints, std::string outputfilename);
   void velocityVerlet_relcorr(double finalTime, int integrationPoints, std::string outputfilename);
+  void perihelionAngle_relcorr(double finalTime, int integrationPoints, std::string outputfilename);
+  void euler_(double T, int N);
+  void vv_(double T, int N);
+  void reset_evolution();
 };
+
+#endif

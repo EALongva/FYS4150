@@ -32,6 +32,7 @@ public:
   arma::vec gravitationalForce_relcorr(const planet& otherPlanet, double Gconst);
   arma::vec acceleration(const planet& otherPlanet, double Gconst);
   double specificAngularMomentum(const planet& otherPlanet);
+  double specificAngularMomentum2();
   double kineticEnergy();
   double potentialEnergy(const planet& otherPlanet, double Gconst);
 };

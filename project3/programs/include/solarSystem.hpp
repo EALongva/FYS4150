@@ -31,5 +31,7 @@ public:
   void fixOriginCentreOfMass();
   void velocityVerlet(double finalTime, int integrationPoints, std::string outputfilename);
   void perihelionAngle(double finalTime, int integrationPoints, std::string outputfilename);
+  void perihelionAngle2(double finalTime, int integrationPoints, std::string outputfilename);
   void perihelionAngle_relcorr(double finalTime, int integrationPoints, std::string outputfilename);
+  void perihelionAngle_relcorr2(double finalTime, int integrationPoints, std::string outputfilename);
 };

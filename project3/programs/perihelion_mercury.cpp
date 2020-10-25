@@ -16,7 +16,7 @@ using namespace std;
 int main(int argc, char *argv[]){
 
   int exponent;
-  string outputfilename;
+  string fname;
   double endtime;
 
   if(argc <= 3){
@@ -48,10 +48,10 @@ int main(int argc, char *argv[]){
   SolarSystem.add_planet(Mercury);
 
   // Fix center of mass
-  //SolarSystem.fixOriginCentreOfMass();
+  SolarSystem.fixOriginCentreOfMass();
 
   // Find perihelion helion angle without relativistic correction
-  SolarSystem.perihelionAngle(endtime, pow(10,exponent), outputpath+"MS_"+fname+".dat");
+  //SolarSystem.perihelionAngle(endtime, pow(10,exponent), outputpath+"MS_"+fname+".dat");
 
   // Reset planet positions and velocities
   planet Mercury_r("Mercury",0.16601E-6, p0Merc,v0Merc);
@@ -59,7 +59,7 @@ int main(int argc, char *argv[]){
   solarSystem SolarSystem_r(2, 4*M_PI*M_PI, 100);
   SolarSystem_r.add_planet(Sun_r);
   SolarSystem_r.add_planet(Mercury_r);
-  //SolarSystem_r.fixOriginCentreOfMass();
+  SolarSystem_r.fixOriginCentreOfMass();
 
   // Find perihelion helion angle with relativistic correction
   SolarSystem_r.perihelionAngle_relcorr(endtime, pow(10,exponent), outputpath+"MS_relcorr_"+fname+".dat");

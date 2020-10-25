@@ -7,7 +7,7 @@ planet::planet(string name_in, double M, vec r, vec v)
 {
     name = name_in;
     mass = M;
-    c2 = 3992754938.0625; // Squared speed of light in vaccuum [AU/year]
+    c2 = 3987291025; // Squared speed of light in vaccuum [AU²/year²]
     position = r;
     velocity = v;
     kinetic = 0.0;
@@ -21,7 +21,7 @@ planet::planet(string name_in, double M, vec r, vec v)
 planet::planet(string name_in, double M, vec r, vec v, double beta)
 {
     name = name_in;
-    c2 = 3992754938.0625; // Squared speed of light in vaccuum [AU/year]
+    c2 = 3987291025; // Squared speed of light in vaccuum [AU²/year²]
     mass = M;
     position = r;
     velocity = v;

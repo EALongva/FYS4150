@@ -30,5 +30,6 @@ public:
   double potentialEnergy(int i);
   void fixOriginCentreOfMass();
   void velocityVerlet(double finalTime, int integrationPoints, std::string outputfilename);
-  void velocityVerlet_relcorr(double finalTime, int integrationPoints, std::string outputfilename);
+  void perihelionAngle(double finalTime, int integrationPoints, std::string outputfilename);
+  void perihelionAngle_relcorr(double finalTime, int integrationPoints, std::string outputfilename);
 };

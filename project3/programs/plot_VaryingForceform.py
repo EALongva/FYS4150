@@ -11,7 +11,7 @@ Nbodies = 2 # Number of celestial bodies
 beta = [2, 2.25, 2.5, 2.75, 3]
 name = ["2", "2.25", "2.5", "2.75", "3"]
 
-raw = pd.read_csv(inputpath+"earthsun_beta2_t2N10e-5.dat",header=None)
+raw = pd.read_csv(inputpath+"ES_beta2_v2pi_t2N10-e5.dat", header=None)
 n_steps = int(len(raw)/(1+(dim+3)*Nbodies))
 
 t = np.zeros(n_steps)
@@ -22,7 +22,7 @@ planet_PE = np.zeros((n_steps, Nbodies, len(beta)))
 planet_L = np.zeros((n_steps, Nbodies, len(beta)))
 
 for b in range(0,len(beta)):
-    raw = pd.read_csv(inputpath+"earthsun_beta"+name[b]+"_t2N10e-5.dat",header=None)
+    raw = pd.read_csv(inputpath+"ES_beta"+name[b]+"_v2pi_t2N10e-5.dat",header=None)
 
     for i in range(0, n_steps):
         int_t = i*(1+(dim+3)*Nbodies)
@@ -38,13 +38,17 @@ for b in range(0,len(beta)):
 
 plt.figure()
 for b in range(0,len(beta)):
-    plt.plot(x_positions[:,0,b], y_positions[:,0,b], label="Sun, $beta=%g$" %beta[b])
-    plt.plot(x_positions[:,1,b], y_positions[:,1,b], label="Earth, $beta=%g$" %beta[b])
-plt.legend(loc='best')
-plt.xlabel('x')
-plt.ylabel('y')
-plt.title(r'The Orbit of the Earth with varying $\beta$-parameter')
-plt.savefig(figpath+"earthsun_orbit_varyingbeta.png",bbox_inches = 'tight')
+    #plt.plot(x_positions[:,0,b], y_positions[:,0,b], label="Sun, $beta=%g$" %beta[b])
+    plt.plot(x_positions[:,1,b], y_positions[:,1,b], label=r"$\beta=%g$" %beta[b])
+ax = plt.gca()
+box = ax.get_position()
+ax.set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
+# Put a legend below current axis
+ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), fancybox=True, shadow=True, ncol=5)
+plt.xlabel('x [AU]')
+plt.ylabel('y [AU]')
+plt.title(r'The Orbit of the Earth')
+plt.savefig(figpath+"ES_orbit_varyingbeta.png",bbox_inches = 'tight')
 
 plt.figure()
 for b in range(0,len(beta)):
@@ -54,29 +58,29 @@ plt.legend(loc='best')
 plt.xlabel('Time [years]')
 plt.ylabel('Distance from Sun to Earth [AU]')
 plt.title(r"Earth-Sun distance")
-plt.savefig(figpath+"earthsun_distance_varyingbeta.png",bbox_inches = 'tight')
+plt.savefig(figpath+"ES_distance_varyingbeta.png",bbox_inches = 'tight')
 
 # Plotting mechanical energy
 
 plt.figure()
-plt.plot(t, planet_KE[:,1,0], label=r"Kinetic Energy, $\beta=2$")
-plt.plot(t, planet_PE[:,1,0], label=r"Potential Energy, $\beta=2$")
-plt.plot(t, planet_KE[:,1,0]+planet_PE[:,1,0], label=r"Total Energy, $\beta=2$")
+plt.plot(t, planet_KE[:,1,0], label=r"Kinetic, $\beta=2$")
+plt.plot(t, planet_PE[:,1,0], label=r"Potential, $\beta=2$")
+plt.plot(t, planet_KE[:,1,0]+planet_PE[:,1,0], label=r"Total, $\beta=2$")
 plt.xlabel('Time [years]')
 plt.ylabel(r'Energy [$M_{\odot}$AU$^2$/year$^2$]')
 plt.title(r'The Mechanical Energy of the Earth')
 plt.legend()
-plt.savefig(figpath+"earthsun_energy.png",bbox_inches = 'tight')
+plt.savefig(figpath+"ES_energy.png",bbox_inches = 'tight')
 
 plt.figure()
-plt.plot(t, planet_KE[:,1,4], label=r"Kinetic Energy, $\beta=3$")
-plt.plot(t, planet_PE[:,1,4], label=r"Potential Energy, $\beta=3$")
+plt.plot(t, planet_KE[:,1,4], label=r"Kinetic, $\beta=3$")
+plt.plot(t, planet_PE[:,1,4], label=r"Potential, $\beta=3$")
 plt.plot(t, planet_KE[:,1,4]+planet_PE[:,1,4], label=r"Total Energy, $\beta=3$")
 plt.xlabel('Time [years]')
 plt.ylabel(r'Energy [$M_{\odot}$AU$^2$/year$^2$]')
 plt.title(r'The Mechanical Energy of the Earth')
 plt.legend()
-plt.savefig(figpath+"earthsun_beta3_energy.png",bbox_inches = 'tight')
+plt.savefig(figpath+"ES_beta3_energy.png",bbox_inches = 'tight')
 
 # Plotting angular momentum
 
@@ -86,7 +90,7 @@ plt.xlabel('Time [years]')
 plt.ylabel('Specific Angular Momentum [AU²/year]')
 plt.title(r'The Specific Angular Momentum of the Earth')
 plt.legend()
-plt.savefig(figpath+"earthsun_angmom.png",bbox_inches = 'tight')
+plt.savefig(figpath+"ES_angmom.png",bbox_inches = 'tight')
 
 plt.figure()
 plt.plot(t, planet_L[:,1,4], label=r"$\beta=3$")
@@ -94,7 +98,72 @@ plt.xlabel('Time [years]')
 plt.ylabel('Specific Angular Momentum [AU²/year]')
 plt.title(r'The Specific Angular Momentum of the Earth')
 plt.legend()
-plt.savefig(figpath+"earthsun_angmom_beta3.png",bbox_inches = 'tight')
-
+plt.savefig(figpath+"ES_angmom_beta3.png",bbox_inches = 'tight')
 
 plt.show()
+"""
+
+# Plotting orbits
+
+plt.figure()
+for b in range(0,len(beta)):
+    #plt.plot(x_positions[:,0,b], y_positions[:,0,b], label="Sun, $beta=%g$" %beta[b])
+    plt.plot(x_positions[:13200,1,b], y_positions[:13200,1,b], label=r"$\beta=%g$" %beta[b])
+plt.legend(loc='best')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title(r'The Orbit of the Earth')
+plt.savefig(figpath+"earthsun_orbit_varyingbeta_zoom.png",bbox_inches = 'tight')
+
+plt.figure()
+for b in range(0,len(beta)):
+    distance = np.sqrt((x_positions[:,1,b] - x_positions[:,0,b])**2 + (y_positions[:,1,b] - y_positions[:,0,b])**2)
+    plt.plot(t[:13200], distance[:13200], label=r"$\beta=%g$" %beta[b])
+plt.legend(loc='best')
+plt.xlabel('Time [years]')
+plt.ylabel('Distance from Sun to Earth [AU]')
+plt.title(r"Earth-Sun distance")
+plt.savefig(figpath+"earthsun_distance_varyingbeta_zoom.png",bbox_inches = 'tight')
+
+# Plotting mechanical energy
+
+plt.figure()
+plt.plot(t[:13200], planet_KE[:13200,1,0], label=r"Kinetic, $\beta=2$")
+plt.plot(t[:13200], planet_PE[:13200,1,0], label=r"Potential, $\beta=2$")
+plt.plot(t[:13200], planet_KE[:13200,1,0]+planet_PE[:13200,1,0], label=r"Total, $\beta=2$")
+plt.xlabel('Time [years]')
+plt.ylabel(r'Energy [$M_{\odot}$AU$^2$/year$^2$]')
+plt.title(r'The Mechanical Energy of the Earth')
+plt.legend()
+plt.savefig(figpath+"earthsun_energy_zoom.png",bbox_inches = 'tight')
+
+plt.figure()
+plt.plot(t[:13200], planet_KE[:13200,1,4], label=r"Kinetic, $\beta=3$")
+plt.plot(t[:13200], planet_PE[:13200,1,4], label=r"Potential, $\beta=3$")
+plt.plot(t[:13200], planet_KE[:13200,1,4]+planet_PE[:13200,1,4], label=r"Total Energy, $\beta=3$")
+plt.xlabel('Time [years]')
+plt.ylabel(r'Energy [$M_{\odot}$AU$^2$/year$^2$]')
+plt.title(r'The Mechanical Energy of the Earth')
+plt.legend()
+plt.savefig(figpath+"earthsun_beta3_energy_zoom.png",bbox_inches = 'tight')
+
+# Plotting angular momentum
+
+plt.figure()
+plt.plot(t[:13200], planet_L[:13200,1,0], label=r"$\beta=2$")
+plt.xlabel('Time [years]')
+plt.ylabel('Specific Angular Momentum [AU²/year]')
+plt.title(r'The Specific Angular Momentum of the Earth')
+plt.legend()
+plt.savefig(figpath+"earthsun_angmom_zoom.png",bbox_inches = 'tight')
+
+plt.figure()
+plt.plot(t[:13200], planet_L[:13200,1,4], label=r"$\beta=3$")
+plt.xlabel('Time [years]')
+plt.ylabel('Specific Angular Momentum [AU²/year]')
+plt.title(r'The Specific Angular Momentum of the Earth')
+plt.legend()
+plt.savefig(figpath+"earthsun_angmom_beta3_zoom.png",bbox_inches = 'tight')
+
+plt.show()
+"""

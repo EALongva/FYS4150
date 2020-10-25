@@ -32,17 +32,33 @@ if program == "test_methods":
     res = subprocess.run(["./test.x"] + args)
     res = subprocess.run(["python", "test/testplot.py"])
 
-elif program == "sstest":
+elif program == "solarsys_orbits":
 
     if COMPILE:
-        res = subprocess.run(["g++", "-std=c++17", "-c", "scripts/sstest.cpp"])
-        res = subprocess.run(["g++", "-std=c++17", "-c", "src/ss.cpp"])
-        res = subprocess.run(["g++", "-std=c++17", "sstest.o", "ss.o" \
-        , "-o", "sstest.x", "-l", "armadillo"])
-        res = subprocess.run(["rm", "sstest.o", "ss.o"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "ssorbits.cpp", "-O3"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/planet.cpp", "-O3"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/solarSystem.cpp", "-O3"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/utils.cpp", "-O3"])
+        res = subprocess.run(["g++", "-std=c++17", "ssorbits.o", "planet.o", "solarSystem.o" \
+        ,"utils.o", "-o", "ssorbits.x", "-l", "armadillo", "-O3"])
+        res = subprocess.run(["rm", "ssorbits.o", "planet.o", "solarSystem.o", "utils.o"])
 
-    res = subprocess.run(["./sstest.x"] + args)
-    #res = subprocess.run(["python", "scripts/bucklingbeam1.py"])
+    res = subprocess.run(["./ssorbits.x"] + args)
+    res = subprocess.run(["python", "data/ssorbits_plots.py"])
+
+elif program == "SunEarthJupiter":
+
+    if COMPILE:
+        res = subprocess.run(["g++", "-std=c++17", "-c", "SunEarthJupiter.cpp", "-O3"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/planet.cpp", "-O3"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/solarSystem.cpp", "-O3"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/utils.cpp", "-O3"])
+        res = subprocess.run(["g++", "-std=c++17", "SunEarthJupiter.o", "planet.o", "solarSystem.o" \
+        ,"utils.o", "-o", "SunEarthJupiter.x", "-l", "armadillo", "-O3"])
+        res = subprocess.run(["rm", "SunEarthJupiter.o", "planet.o", "solarSystem.o", "utils.o"])
+
+    res = subprocess.run(["./SunEarthJupiter.x"] + args)
+    #res = subprocess.run(["python", "data/SunEarthJupiter_plots.py"])
 
 elif program == "crp":
 

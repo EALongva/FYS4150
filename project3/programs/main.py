@@ -32,6 +32,20 @@ if program == "test_methods":
     res = subprocess.run(["./test.x"] + args)
     res = subprocess.run(["python", "test/testplot.py"])
 
+
+elif program == "test_time":
+
+    if COMPILE:
+        res = subprocess.run(["g++", "-std=c++17", "-c", "test/test_time.cpp", "-O3"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/planet.cpp", "-O3"])
+        res = subprocess.run(["g++", "-std=c++17", "-c", "src/solarSystem.cpp", "-O3"])
+        res = subprocess.run(["g++", "-std=c++17", "test_time.o", "planet.o", "solarSystem.o" \
+        , "-o", "test_time.x", "-l", "armadillo", "-O3"])
+        res = subprocess.run(["rm", "test_time.o", "planet.o", "solarSystem.o"])
+
+    res = subprocess.run(["./test_time.x"] + args)
+    res = subprocess.run(["python", "test/timeplot.py"])
+
 elif program == "solarsys_orbits":
 
     if COMPILE:

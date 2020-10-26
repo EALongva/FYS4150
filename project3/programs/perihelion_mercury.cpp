@@ -51,7 +51,7 @@ int main(int argc, char *argv[]){
   SolarSystem.fixOriginCentreOfMass();
 
   // Find perihelion helion angle without relativistic correction
-  //SolarSystem.perihelionAngle(endtime, pow(10,exponent), outputpath+"MS_"+fname+".dat");
+  SolarSystem.perihelionAngle(endtime, pow(10,exponent), outputpath+"MS_"+fname+".dat");
 
   // Reset planet positions and velocities
   planet Mercury_r("Mercury",0.16601E-6, p0Merc,v0Merc);

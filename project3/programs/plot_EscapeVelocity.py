@@ -8,61 +8,61 @@ figpath = "../results/figures/"
 dim = 2 # Spatial dimension
 Nbodies = 2 # Number of celestial bodies
 
-beta = [2, 2.25, 2.5, 2.75, 3]
-name = ["2", "2.25", "2.5", "2.75", "3"]
-# Initial velocity in data
-v_fname = "7" # filename format
-v = "7" # latex format
+escv = [0.9, 0.99, 1.0, 1.01, 1.1]
+name = ["0.9", "0.99", "1.0", "1.01", "1.1"]
 
-raw = pd.read_csv(inputpath+"ES_beta2_v"+v_fname"_t2N10e-5.dat", header=None)
+raw = pd.read_csv(inputpath+"ES_escv0.9_t10N10e-5.dat", header=None)
 n_steps = int(len(raw)/(1+(dim+3)*Nbodies))
 
 t = np.zeros(n_steps)
-x_positions = np.zeros((n_steps, Nbodies,len(beta)))
-y_positions = np.zeros((n_steps, Nbodies,len(beta)))
-planet_KE = np.zeros((n_steps, Nbodies, len(beta)))
-planet_PE = np.zeros((n_steps, Nbodies, len(beta)))
-planet_L = np.zeros((n_steps, Nbodies, len(beta)))
+x_positions = np.zeros((n_steps, Nbodies,len(escv)))
+y_positions = np.zeros((n_steps, Nbodies,len(escv)))
+planet_KE = np.zeros((n_steps, Nbodies, len(escv)))
+planet_PE = np.zeros((n_steps, Nbodies, len(escv)))
+planet_L = np.zeros((n_steps, Nbodies, len(escv)))
 
-for b in range(0,len(beta)):
-    raw = pd.read_csv(inputpath+"ES_beta"+name[b]+"_v"+v_fname"_t2N10e-5.dat",header=None)
+for v in range(0,len(escv)):
+    raw = pd.read_csv(inputpath+"ES_escv"+name[v]+"_t10N10e-5.dat",header=None)
 
     for i in range(0, n_steps):
         int_t = i*(1+(dim+3)*Nbodies)
         t[i]= raw.iloc[int_t,0]
         for n in range(0,Nbodies):
-            x_positions[i,n,b] = raw.iloc[int_t+1+n*dim, 0]
-            y_positions[i,n,b] = raw.iloc[int_t+2+n*dim, 0]
-            planet_KE[i,n,b] = raw.iloc[int_t+dim*Nbodies+2+n*dim, 0]
-            planet_PE[i,n,b] = raw.iloc[int_t+dim*Nbodies+3+n*dim, 0]
-            planet_L[i,n,b] = raw.iloc[int_t+dim*Nbodies+4+n*dim, 0]
+            x_positions[i,n,v] = raw.iloc[int_t+1+n*dim, 0]
+            y_positions[i,n,v] = raw.iloc[int_t+2+n*dim, 0]
+            planet_KE[i,n,v] = raw.iloc[int_t+dim*Nbodies+2+n*dim, 0]
+            planet_PE[i,n,v] = raw.iloc[int_t+dim*Nbodies+3+n*dim, 0]
+            planet_L[i,n,v] = raw.iloc[int_t+dim*Nbodies+4+n*dim, 0]
 
 # Plotting orbits
 
 plt.figure()
-for b in range(0,len(beta)):
+for v in range(0,len(escv)):
     #plt.plot(x_positions[:,0,b], y_positions[:,0,b], label="Sun, $beta=%g$" %beta[b])
-    plt.plot(x_positions[:,1,b], y_positions[:,1,b], label=r"$\beta=%g$" %beta[b])
-ax = plt.gca()
-box = ax.get_position()
-ax.set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
+    plt.plot(x_positions[:,1,v], y_positions[:,1,v], label=r"$v_i=%gv_e$" %escv[v])
+#ax = plt.gca()
+#box = ax.get_position()
+#ax.set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
 # Put a legend below current axis
-ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), fancybox=True, shadow=True, ncol=5)
+#ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), fancybox=True, shadow=True, ncol=5)
+plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 plt.xlabel('x [AU]')
 plt.ylabel('y [AU]')
-plt.title(r'The Orbit of the Earth, $v_i=%s$ AU/year' %v)
-plt.savefig(figpath+"ES_v"+v_fname+"_orbit_varyingbeta.png",bbox_inches = 'tight')
+plt.title(r'The Orbit of the Earth')
+plt.savefig(figpath+"ES_escv_orbit.png",bbox_inches = 'tight')
 
 plt.figure()
-for b in range(0,len(beta)):
-    distance = np.sqrt((x_positions[:,1,b] - x_positions[:,0,b])**2 + (y_positions[:,1,b] - y_positions[:,0,b])**2)
-    plt.plot(t, distance, label=r"$\beta=%g$" %beta[b])
+for v in range(0,len(escv)):
+    distance = np.sqrt((x_positions[:,1,v] - x_positions[:,0,v])**2 + (y_positions[:,1,v] - y_positions[:,0,v])**2)
+    plt.plot(t, distance, label=r"$v_i=%gv_e$" %escv[v])
 plt.legend(loc='best')
 plt.xlabel('Time [years]')
 plt.ylabel('Distance from Sun to Earth [AU]')
-plt.title(r"Earth-Sun distance, $v_i=%s$ AU/year" %v)
-plt.savefig(figpath+"ES_v"+v_fname+"_distance_varyingbeta.png",bbox_inches = 'tight')
+plt.title(r"Earth-Sun distance")
+plt.savefig(figpath+"ES_escv_distance.png",bbox_inches = 'tight')
 
+plt.show()
+"""
 # Plotting mechanical energy
 
 plt.figure()
@@ -104,7 +104,7 @@ plt.legend()
 plt.savefig(figpath+"ES_v"+v_fname+"_beta3_angmom.png",bbox_inches = 'tight')
 
 plt.show()
-
+"""
 """
 # Plotting orbits
 

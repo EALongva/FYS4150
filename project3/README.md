@@ -8,6 +8,7 @@ Please note that the main components of this project is the planet and solarsyst
 
 Running programs using main.py:
 >>python main.py 'task' 'args' -compile
+
 The compile flag is only required if running for the first time.
 The 'task's that can be run through this program are:
  - 'test_methods'

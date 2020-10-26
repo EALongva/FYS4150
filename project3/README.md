@@ -16,6 +16,6 @@ The 'task's that can be run through this program are:
  - 'nrg'
  - 'solarsys_orbits'   args: 'Time' + 'N_timestepPower'
  - 'SunEarthJupiter'   args: 'Time' + 'N_timestepPower'
- -'varying_force'      args: 'filename' + 'init_velocity' (single float) + 'init_distance' (single float) + 'endtime' + 'exponent' (1/r^exponent)")
+ - 'varying_force'      args: 'filename' + 'init_velocity' (single float) + 'init_distance' (single float) + 'endtime' + 'exponent' (1/r^exponent)")
  - 'MercuryPerihelion' args: 'filename' + 'endtime' (years) + 'N_timestepPower'
  - 'escape_velocity'   args: 'filename' + 'endtime' (years) + 'N_timestepPower'

@@ -17,18 +17,21 @@ int main(int argc, char *argv[]){
 
   int exponent;
   double v0E;
+  double r0E;
   string fname;
   double endtime;
 
-  if(argc == 5){
+  if(argc == 6){
     fname = argv[1];
     v0E = atof(argv[2]);
-    endtime = atof(argv[3]);
-    exponent = atoi(argv[4]);
+    r0E = atof(argv[3]);
+    endtime = atof(argv[4]);
+    exponent = atoi(argv[5]);
   }
   else{
     fname = "v2pi_t2N10e-5";
     v0E = 2*M_PI;
+    r0E = 1;
     endtime = 2;
     exponent = 5;
   }
@@ -38,7 +41,7 @@ int main(int argc, char *argv[]){
   vec v0Sun = {0, 0};
   vec p0Sun = {0, 0};
   vec v0Earth = {0, v0E};
-  vec p0Earth = {1, 0};
+  vec p0Earth = {r0E, 0};
 
   vec beta_list = {2, 2.25, 2.5, 2.75, 3};
   string name_list[5] = {"2", "2.25", "2.5", "2.75", "3"};

@@ -102,3 +102,5 @@ plt.ylabel('Specific Angular Momentum [AU²/year]')
 plt.title(r"Earth's Angular Momentum, $v_i=%s$ AU/year" %v)
 plt.legend()
 plt.savefig(figpath+"ES_v"+v_fname+"_beta3_angmom.png",bbox_inches = 'tight')
+
+plt.show()

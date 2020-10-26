@@ -58,7 +58,7 @@ elif program == "SunEarthJupiter":
         res = subprocess.run(["rm", "SunEarthJupiter.o", "planet.o", "solarSystem.o", "utils.o"])
 
     res = subprocess.run(["./SunEarthJupiter.x"] + args)
-    #res = subprocess.run(["python", "data/SunEarthJupiter_plots.py"])
+    res = subprocess.run(["python", "data/SunEarthJupiter_plots.py"])
 
 elif program == "crp":
 

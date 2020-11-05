@@ -8,8 +8,11 @@
 #include "time.h"
 #include "include/exampleClass.hpp"
 #include "include/utils.hpp"
+#include "include/metro.hpp"
 
 int main(){
+
+  /*
 
   // testing utils
   example();
@@ -21,6 +24,38 @@ int main(){
   // generating an armadillo array to test data saving and plotting
   arma::vec r(10,arma::fill::randu);
   r.save("results/data/example.csv", arma::csv_ascii);
+  */
+
+  // generating random numbers using m
+  /*std::mt19937 rng(42);
+  std::uniform_real_distribution<double> p(0,1);
+  for (int i=0; i<10; i++) std::cout << p(rng) << std::endl;
+  */
+
+
+  // testing metro class
+  int N_in      = 2;
+  int seed      = 42;
+  double T_in   = 1.0;
+  double J_in   = 1.0;
+
+  metro M(N_in, T_in, J_in, seed);
+
+
+  M.genState();
+  M.energy();
+
+
 
   return 0;
 }
+
+
+
+
+
+
+
+
+
+//

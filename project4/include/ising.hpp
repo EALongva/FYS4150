@@ -22,7 +22,7 @@ public:
   // Functions
   void genState();
   void energy();
-  void metropolis();
+  void Metropolis();
 };
 
 #endif

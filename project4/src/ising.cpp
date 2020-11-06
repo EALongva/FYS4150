@@ -11,13 +11,13 @@ void set_spin(double& val)
   else { val = 1; }
 }
 
-metro::metro(int N_in)
+Ising::Ising(int N_in)
 {
     N = N_in;
     cout << "init dimension = " << N << endl;
 }
 
-metro::metro(int N_in, double T_in, double J_in, int seed)
+Ising::Ising(int N_in, double T_in, double J_in, int seed)
 {
     N = N_in;
     cout << "init dimension = " << N << endl;
@@ -28,7 +28,7 @@ metro::metro(int N_in, double T_in, double J_in, int seed)
 
 }
 
-void metro::genState()
+void Ising::genState()
 {
   arma_rng::set_seed_random();
   state.randu(N,N);
@@ -40,7 +40,7 @@ void metro::genState()
 }
 
 
-void metro::energy()
+void Ising::energy()
 {
   double tempE = 0;
   mat pS; // altered state having periodic boundaries (periodic State)
@@ -74,13 +74,13 @@ void metro::energy()
 
 }
 
-void metro::metropolis()
+void Ising::Metropolis()
 {
   for (int y = 0; y < L; y++){
     for (int x = 0; y < L; x++){
       int ix = (int) rand() % L;
       int iy = (int) rand() % L;
-      int deltaE = 2 * state(iy, ix) *
+      int deltaE = 2 * spin_state(iy, ix) *
     }
   }
 

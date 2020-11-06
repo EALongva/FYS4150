@@ -1,4 +1,4 @@
-#include "../include/metro.hpp"
+#include "../include/ising.hpp"
 using namespace arma;
 using namespace std;
 
@@ -76,10 +76,10 @@ void Ising::energy()
 
 void Ising::Metropolis()
 {
-  for (int y = 0; y < L; y++){
-    for (int x = 0; y < L; x++){
-      int ix = (int) rand() % L;
-      int iy = (int) rand() % L;
+  for (int y = 0; y < N; y++){
+    for (int x = 0; y < N; x++){
+      int ix = (int) rand() % N;
+      int iy = (int) rand() % N;
       int deltaE = 2 * spin_state(iy, ix) *
     }
   }

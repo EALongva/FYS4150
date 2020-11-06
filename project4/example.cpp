@@ -40,10 +40,10 @@ int main(){
   double J_in   = 1.0;
 
   metro M(N_in, T_in, J_in, seed);
+  M.w.print();
 
-
-  M.genState();
-  M.energy();
+  //M.genState();
+  //M.energy();
 
 
 

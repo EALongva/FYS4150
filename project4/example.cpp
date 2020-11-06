@@ -8,10 +8,11 @@
 #include "time.h"
 //#include "include/exampleClass.hpp"
 //#include "include/utils.hpp"
-#include "include/metro.hpp"
+#include "include/ising.hpp"
 
 int main(){
-
+  //srand(42);
+  //srand(time(NULL));
   /*
 
   // testing utils
@@ -39,13 +40,12 @@ int main(){
   double T_in   = 1.0;
   double J_in   = 1.0;
 
-  metro M(N_in, T_in, J_in, seed);
-  M.w.print();
+  Ising M(N_in, T_in, J_in, seed);
 
-  //M.genState();
-  //M.energy();
 
-  // srand(time(NULL));
+  M.genState();
+  M.energy();
+
   std::cout << rand() << std::endl;
 
   return 0;

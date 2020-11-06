@@ -7,8 +7,8 @@ inline int periodic(int i, int limit, int add){
 
 void set_spin(double& val)
 {
-  if (val <= 0.5){ val = -1; }
-  else { val = 1; }
+  if (val <= 0.5){ val = ((int) -1); }
+  else { val = ((int) 1); }
 }
 
 Ising::Ising(int N_in)
@@ -17,14 +17,67 @@ Ising::Ising(int N_in)
     cout << "init dimension = " << N << endl;
 }
 
-Ising::Ising(int N_in, double T_in, double J_in, int seed)
+Ising::Ising(int N_in, double T_in, double J_in, int seed_in)
 {
     N = N_in;
     cout << "init dimension = " << N << endl;
 
     T = T_in;
     J = J_in;
+    seed = seed_in;
+
+    // setting the arma::random seed
+    arma::arma_rng::set_seed(seed);
+
+    // setting up the e^(-beta*dE) array, hence we dont compute this for
+    // every step
+    w = arma::vec(17, arma::fill::zeros);
+    for (int i=0; i < 17; i += 4){
+      w(i) = - (1/T) * (i-8);
+    }
+    w = arma::exp(w);
+
+}
+
+void Ising::init()
+{
+  if (T <= 2.1){
+
+    state = arma::mat(N, N, arma::fill::ones);
+
+  }
+
+  else{
+
     arma_rng::set_seed(seed);
+
+    state.randu(N,N);
+    state.for_each( [](arma::mat::elem_type& val) { set_spin(val); } );
+
+    cout << "Initial state lattice of dimension = " << N << endl;
+    state.print();
+  }
+
+  int tempE = 0;
+  mat pS; // altered state having periodic boundaries (periodic State)
+
+  // description in ising::energy()
+
+  pS = join_rows(state.col(N-1), state);
+  pS = join_rows(pS, state.col(0));
+  pS = join_cols(pS.row(N-1), pS);
+  pS = join_cols(pS, pS.row(0));
+
+  for (int i = 1; i <= N; i++){
+    for (int j = 1; j <= N; j++){
+
+      tempE += -J*( pS(i,j)*pS(i-1,j) + pS(i,j)*pS(i+1,j)
+                    + pS(i,j)*pS(i,j-1) + pS(i,j)*pS(i,j+1) );
+
+    }
+  }
+
+  E = tempE;
 
 }
 

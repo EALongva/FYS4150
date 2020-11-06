@@ -14,6 +14,7 @@ public:
   double T; // temperature, same as energy with K_b=1
   int seed; // seed for randomgenerators
   double E;
+  arma::vec w; //
   arma::mat state; // state of system
 
   // Initializer
@@ -23,6 +24,7 @@ public:
   // Functions
   void genState();
   void energy();
+  void change_state(int dE);
 
 };
 

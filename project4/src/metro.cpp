@@ -21,7 +21,18 @@ metro::metro(int N_in, double T_in, double J_in, int seed)
 
     T = T_in;
     J = J_in;
+
+    // setting the arma::random seed
     arma::arma_rng::set_seed(seed);
+
+    // setting up the e^(-beta*dE) array, hence we dont compute this for
+    // every step
+    w = arma::vec(17, arma::fill::zeros);
+    for (int i=0; i < 17; i += 4){
+      w(i) = - (1/T) * (i-8);
+    }
+    w = arma::exp(w);
+
 
 }
 
@@ -70,3 +81,22 @@ void metro::energy()
   }
 
 }
+
+void metro::change_state(int dE)
+{
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+//

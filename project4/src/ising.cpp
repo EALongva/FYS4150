@@ -11,20 +11,41 @@ void set_spin(double& val)
   else { val = 1; }
 }
 
-Ising::Ising(int N_in)
+Ising::Ising(int N_in, double T_in)
 {
     N = N_in;
     cout << "init dimension = " << N << endl;
+    E = 0;
+    M = 0;
+    T = T_in;
+    J = 1;
+
+    // setting up the e^(-beta*dE) array, hence we dont compute this for
+    // every step
+    w = arma::vec(17, fill::zeros);
+    for (int i=0; i < 17; i += 4){
+      w(i) = - (1/T) * (i-8);
+    }
+    w = exp(w);
 }
 
-Ising::Ising(int N_in, double T_in, double J_in, int seed)
+Ising::Ising(int N_in, double T_in, double J_in)
 {
     N = N_in;
     cout << "init dimension = " << N << endl;
-
+    E = 0;
+    M = 0;
     T = T_in;
     J = J_in;
-    arma_rng::set_seed(seed);
+    // arma_rng::set_seed(seed);
+
+    // setting up the e^(-beta*dE) array, hence we dont compute this for
+    // every step
+    w = arma::vec(17, fill::zeros);
+    for (int i=0; i < 17; i += 4){
+      w(i) = - (1/T) * (i-8);
+    }
+    w = exp(w);
 
 }
 
@@ -76,17 +97,25 @@ void Ising::energy()
 
 void Ising::Metropolis()
 {
+  // Sweeing through the spins in the lattice and picking random spins
   for (int y = 0; y < N; y++){
     for (int x = 0; y < N; x++){
       int ix = (int) rand() % N;
       int iy = (int) rand() % N;
 
+      // Computing the energy change dE
       int dE = 2 * state(iy, ix) *
         (state(iy, periodic(ix, N, -1)) +
         state(periodic(iy, N, -1), ix) +
         state(iy, periodic(ix, N, 1)) +
         state(periodic(iy, N, 1), ix));
 
+      // We use our energy change dE to index a corresponding probability w,
+      // which is dependent on temperature. A dE=-8 corresponds to
+      // a probability w(dE+8)=w(0)=exp(8/(k_bT)).
+      // We flip the spin if the energy change is less than or equal to
+      // zero (which gives a w(dE+8)=>1) or if a generated random number between
+      // 0 and 1 is less than w(dE+8)
       if (rand() / RAND_MAX <= w(dE+8)){
         state(iy, ix) *= -1; // flip the spin
         M += 2*state(iy, ix);

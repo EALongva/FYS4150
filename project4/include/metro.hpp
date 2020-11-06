@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cmath>
 #include <armadillo>
+#include <stdlib.h>
 
 class metro
 {

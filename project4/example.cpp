@@ -6,8 +6,8 @@
 #include <cstdlib>
 #include <cmath>
 #include "time.h"
-#include "include/exampleClass.hpp"
-#include "include/utils.hpp"
+//#include "include/exampleClass.hpp"
+//#include "include/utils.hpp"
 #include "include/metro.hpp"
 
 int main(){
@@ -45,7 +45,8 @@ int main(){
   M.genState();
   M.energy();
 
-
+  // srand(time(NULL));
+  std::cout << rand() << std::endl;
 
   return 0;
 }

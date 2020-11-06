@@ -1,13 +1,11 @@
 #include "../include/metro.hpp"
-
 //using namespace arma;
 //using namespace std;
 
-void set_spin(double& val){
-
+void set_spin(double& val)
+{
   if (val <= 0.5){ val = -1; }
   else { val = 1; }
-
 }
 
 metro::metro(int N_in)
@@ -72,5 +70,3 @@ void metro::energy()
   }
 
 }
-
-//

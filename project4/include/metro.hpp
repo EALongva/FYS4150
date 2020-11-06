@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cmath>
 #include <armadillo>
+#include <stdlib.h>
 
 class metro
 {
@@ -23,7 +24,6 @@ public:
   // Functions
   void genState();
   void energy();
-
 };
 
 #endif

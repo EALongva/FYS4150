@@ -2,8 +2,8 @@
 using namespace arma;
 using namespace std;
 
-// inline int periodic(int i, int limit, int add){
-//   return (i+limit+add) % (limit);}
+inline int periodic(int i, int limit, int add){
+  return (i+limit+add) % (limit);}
 
 void set_spin(double& val)
 {
@@ -80,30 +80,20 @@ void Ising::Metropolis()
     for (int x = 0; y < N; x++){
       int ix = (int) rand() % N;
       int iy = (int) rand() % N;
-      int deltaE = 2 * spin_state(iy, ix) *
+
+      int dE = 2 * state(iy, ix) *
+        (state(iy, periodic(ix, N, -1)) +
+        state(periodic(iy, N, -1), ix) +
+        state(iy, periodic(ix, N, 1)) +
+        state(periodic(iy, N, 1), ix));
+
+      if (rand() / RAND_MAX <= w(dE+8)){
+        state(iy, ix) *= -1; // flip the spin
+        M += 2*state(iy, ix);
+        E += dE;
+      }
     }
   }
-
-  // void Metropolis(int n_spins, long& idum, int **spin_matrix, double& E, double&M, double *w)
-  // {
-  //   // loop over all spins
-  //   for(int y =0; y < n_spins; y++) {
-  //     for (int x= 0; x < n_spins; x++){
-  //       int ix = (int) (ran1(&idum)*(double)n_spins);
-  //       int iy = (int) (ran1(&idum)*(double)n_spins);
-  //       int deltaE =  2*spin_matrix[iy][ix]*
-  // 	(spin_matrix[iy][periodic(ix,n_spins,-1)]+
-  // 	 spin_matrix[periodic(iy,n_spins,-1)][ix] +
-  // 	 spin_matrix[iy][periodic(ix,n_spins,1)] +
-  // 	 spin_matrix[periodic(iy,n_spins,1)][ix]);
-  //       if ( ran1(&idum) <= w[deltaE+8] ) {
-  // 	spin_matrix[iy][ix] *= -1;  // flip one spin and accept new spin config
-  //         M += (double) 2*spin_matrix[iy][ix];
-  //         E += (double) deltaE;
-  //       }
-  //     }
-  //   }
-  // } // end of Metropolis sampling over spins
 
 
 }

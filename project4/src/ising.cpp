@@ -37,6 +37,14 @@ Ising::Ising(int N_in, double T_in, double J_in, int seed_in, int ordered_in)
     M = 0;
     T = T_in;
     J = J_in;
+
+    // setting up the e^(-beta*dE) array, hence we dont compute this for
+    // every step
+    w = arma::vec(17, fill::zeros);
+    for (int i=0; i < 17; i += 4){
+      w(i) = - (1/T) * (i-8);
+    }
+    w = exp(w);
     seed = seed_in;
     ordered = ordered_in;
 
@@ -143,13 +151,11 @@ void Ising::energy()
 
 void Ising::Metropolis()
 {
-
   // Sweeing through the spins in the lattice and picking random spins
   for (int y = 0; y < N; y++){
     for (int x = 0; y < N; x++){
       int ix = (int) rand() % N;
       int iy = (int) rand() % N;
-
 
       // Computing the energy change dE
       int dE = 2 * state(iy, ix) *

@@ -176,4 +176,10 @@ void Ising::Metropolis()
 }
 
 
+void save(std::string filename)
+{
+  
+}
+
+
 //

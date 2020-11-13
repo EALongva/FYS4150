@@ -18,11 +18,12 @@ inline int PeriodicBoundary(int i, int limit, int add) {
   return (i+limit+add) % (limit);
 }
 // Function to initialise energy and magnetization
-void InitializeLattice(int, mat &, double&, double&);
+void InitializeLattice(int, mat &, double&, double&, string);
 // The metropolis algorithm including the loop over Monte Carlo cycles
-void MetropolisSampling(int, int, double, vec &);
+void MetropolisSampling(int, int, double, vec &, vec &, vec &, vec &, string);
+
 // prints to file the results of the calculations
-void WriteResultstoFile(int, int, double, vec);
+void WriteResultstoFile(int, int, vec, vec);
 
 // Main program begins here
 
@@ -30,7 +31,7 @@ int main(int argc, char* argv[])
 {
   string filename, Orientation;
   int NSpins, MonteCarloCycles;
-  double InitialTemp, FinalTemp, TempStep;
+  double Temperature;
   if (argc <= 5) {
     cout << "Bad Usage: " << argv[0] <<
       " read output file, Number of spins, MC cycles, temperature and orientation ('random' or 'ordered')" << endl;
@@ -42,30 +43,33 @@ int main(int argc, char* argv[])
   NSpins = atoi(argv[2]);
   MonteCarloCycles = atoi(argv[3]);
   Temperature = atof(argv[4]);
-  Orientation = argv[5]
+  Orientation = argv[5];
 
 
   // Declare new file name and add temperature and orientation to file name, only master node opens file
   string fileout = filename;
-  string argument = to_string(Temperature);
-  fileout.append(argument+Orientation);
+  string argument = to_string((int)Temperature);
+  fileout.append(argument);
+  fileout.append(Orientation);
   ofile.open(fileout);
 
-  // Start Monte Carlo sampling by looping over the selected Temperatures
-  double  TimeStart, TimeEnd, TotalTime;
+  // Start Monte Carlo sampling by looping over the selected Temperature
   clock_t TimeStart = clock();
 
-  vec AllEnergies = zeros<mat>(MonteCarloCycles);
-  vec AllMagnetisations = zeros<mat>(MonteCarloCycles);
+  vec AllEnergies = zeros<vec>(MonteCarloCycles);
+  vec AllMagnetisations = zeros<vec>(MonteCarloCycles);
+  vec AverageEnergies = zeros<vec>(MonteCarloCycles);
+  vec AverageMagnetisations = zeros<vec>(MonteCarloCycles);
 
   // Start Monte Carlo computation and get expectation values
-  MetropolisSampling(NSpins, MonteCarloCycles, Temperature, AllEnergies, AllMagnetisations);
+  MetropolisSampling(NSpins, MonteCarloCycles, Temperature, AllEnergies,
+    AllMagnetisations, AverageEnergies, AverageMagnetisations, Orientation);
 
   // Find total average
-  WriteResultstoFile(NSpins, AllEnergies, AllMagnetisations);
+  WriteResultstoFile(NSpins, MonteCarloCycles, AverageEnergies, AverageMagnetisations);
   ofile.close();  // close output file
   clock_t TimeEnd = clock();
-  TotalTime = (TimeStart-TimeEnd)/CLOCKS_PER_SEC);
+  double TotalTime = (double) ((TimeEnd-TimeStart)/CLOCKS_PER_SEC);
   cout << "Time = " <<  TotalTime  << endl;
   // End MPI
   return 0;
@@ -73,7 +77,9 @@ int main(int argc, char* argv[])
 
 
 // The Monte Carlo part with the Metropolis algo with sweeps over the lattice
-void MetropolisSampling(int NSpins, int MonteCarloCycles, double Temperature, vec &AllEnergies, vec &AllMagnetisations)
+void MetropolisSampling(int NSpins, int MonteCarloCycles, double Temperature,
+  vec &AllEnergies, vec &AllMagnetisations, vec &AverageEnergies,
+  vec &AverageMagnetisations, string Orientation)
 {
   // Initialize the seed and call the Mersienne algo
   std::random_device rd;
@@ -87,32 +93,39 @@ void MetropolisSampling(int NSpins, int MonteCarloCycles, double Temperature, ve
   // initialize array for expectation values
   InitializeLattice(NSpins, SpinMatrix, Energy, MagneticMoment, Orientation);
   // setup array for possible energy changes
-  vec EnergyDifference = zeros<mat>(17);
-  for( int de =-8; de <= 8; de+=4) EnergyDifference(de+8) = exp(-de/Temperature);
+  vec BoltzmannFactor = zeros<mat>(17);
+  for( int de =-8; de <= 8; de+=4) BoltzmannFactor(de+8) = exp(-de/Temperature);
   // Start Monte Carlo experiments
   int AllSpins = NSpins*NSpins;
-  for (int cycles = 1; cycles <= MonteCarloCycles; cycles++){
+  double SumAllEnergies = Energy/AllSpins;
+  double SumAllMagnetisations = MagneticMoment/AllSpins;
+  for (int cycles = 0; cycles < MonteCarloCycles; cycles++){
     // The sweep over the lattice, looping over all spin sites
     for(int Spins =0; Spins < AllSpins; Spins++) {
       int ix = (int) (RandomNumberGenerator(gen)*NSpins);
       int iy = (int) (RandomNumberGenerator(gen)*NSpins);
       int deltaE =  2*SpinMatrix(ix,iy)*
-	(SpinMatrix(ix,PeriodicBoundary(iy,NSpins,-1))+
-	 SpinMatrix(PeriodicBoundary(ix,NSpins,-1),iy) +
-	 SpinMatrix(ix,PeriodicBoundary(iy,NSpins,1)) +
-	 SpinMatrix(PeriodicBoundary(ix,NSpins,1),iy));
-      if ( RandomNumberGenerator(gen) <= EnergyDifference(deltaE+8) ) {
-	SpinMatrix(ix,iy) *= -1.0;  // flip one spin and accept new spin config
-	MagneticMoment += 2.0*SpinMatrix(ix,iy);
-	Energy += (double) deltaE;
+    	(SpinMatrix(ix,PeriodicBoundary(iy,NSpins,-1))+
+    	 SpinMatrix(PeriodicBoundary(ix,NSpins,-1),iy) +
+    	 SpinMatrix(ix,PeriodicBoundary(iy,NSpins,1)) +
+    	 SpinMatrix(PeriodicBoundary(ix,NSpins,1),iy));
+      if ( RandomNumberGenerator(gen) <= BoltzmannFactor(deltaE+8) ) {
+      	SpinMatrix(ix,iy) *= -1.0;  // flip one spin and accept new spin config
+      	MagneticMoment += 2.0*SpinMatrix(ix,iy);
+      	Energy += (double) deltaE;
       }
+    }
+    AllEnergies(cycles) = Energy/AllSpins;
+    AllMagnetisations(cycles) = fabs(MagneticMoment)/AllSpins;
+    SumAllEnergies += AllEnergies(cycles);
+    SumAllMagnetisations += AllMagnetisations(cycles);
+    AverageEnergies(cycles) = SumAllEnergies/(cycles+1);
+    AverageMagnetisations(cycles) = SumAllMagnetisations/(cycles+1);
   }
-  AllEnergies(cycles) = Energy;
-  AllMagnetisations(cycles) = fabs(MagneticMoment);
 } // end of Metropolis sampling over spins
 
 // function to initialise energy, spin matrix and magnetization
-void InitializeLattice(int NSpins, mat &SpinMatrix,  double& Energy, double& MagneticMoment, string Orientiation)
+void InitializeLattice(int NSpins, mat &SpinMatrix,  double& Energy, double& MagneticMoment, string Orientation)
 {
   if (Orientation == "random"){
     // Initialize the seed and call the Mersienne algo
@@ -121,28 +134,20 @@ void InitializeLattice(int NSpins, mat &SpinMatrix,  double& Energy, double& Mag
     // Set up the uniform distribution for x \in [[0, 1]
     std::uniform_real_distribution<double> RandomNumberGenerator(0.0,1.0);
     // setup spin matrix and initial magnetization using random orientation
-    for(int x =0; x < NSpins; x++) {
+    for (int x = 0; x < NSpins; x++) {
       for (int y= 0; y < NSpins; y++){
         if ( RandomNumberGenerator(gen) <= 0.5 ) {
           SpinMatrix(x,y) = -1.0; // spin orientation for the ground state
           MagneticMoment +=  (double) SpinMatrix(x,y);
-        }
+          }
         else {
           SpinMatrix(x,y) = 1.0; // spin orientation for the ground state
           MagneticMoment +=  (double) SpinMatrix(x,y);
-        }
+          }
       }
     }
   }
   else{
-    // setup spin matrix and initial magnetization using cold start, all spins pointing up or down
-    for(int x =0; x < NSpins; x++) {
-      for (int y= 0; y < NSpins; y++){
-        SpinMatrix(x,y) = 1.0; // spin orientation for the ground state
-        MagneticMoment +=  (double) SpinMatrix(x,y);
-      }
-    }
-  }
     // setup spin matrix and initial magnetization using cold start, all spins pointing up or down
     for(int x =0; x < NSpins; x++) {
       for (int y= 0; y < NSpins; y++){
@@ -163,9 +168,11 @@ void InitializeLattice(int NSpins, mat &SpinMatrix,  double& Energy, double& Mag
 
 
 
-void WriteResultstoFile(int NSpins, vec AllEnergies, vec AllMagnetisations)
+void WriteResultstoFile(int NSpins, int MonteCarloCycles, vec AverageEnergies, vec AverageMagnetisations)
 {
   ofile << setiosflags(ios::showpoint | ios::uppercase);
-  ofile << setw(15) << setprecision(8) << AllEnergies
-  ofile << setw(15) << setprecision(8) << AllMagnetisations << endl;
+  for (int i=0; i < MonteCarloCycles; i++){
+    ofile << i+1 << setw(15) << setprecision(8) << AverageEnergies(i)
+    << setw(15) << setprecision(8) << AverageMagnetisations(i) << endl;
+    }
 } // end output function

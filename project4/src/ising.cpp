@@ -29,7 +29,7 @@ Ising::Ising(int N_in, double T_in)
     w = exp(w);
 }
 
-Ising::Ising(int N_in, double T_in, double J_in, int seed_in)
+Ising::Ising(int N_in, double T_in, double J_in, int seed_in, int ordered_in)
 {
     N = N_in;
     cout << "init dimension = " << N << endl;
@@ -46,6 +46,7 @@ Ising::Ising(int N_in, double T_in, double J_in, int seed_in)
     }
     w = exp(w);
     seed = seed_in;
+    ordered = ordered_in;
 
     // setting the arma::random seed
     arma::arma_rng::set_seed(seed);
@@ -62,7 +63,7 @@ Ising::Ising(int N_in, double T_in, double J_in, int seed_in)
 
 void Ising::init()
 {
-  if (T <= 2.1){
+  if (T <= 2.1 or ordered == 0){
 
     state = arma::mat(N, N, arma::fill::ones);
 

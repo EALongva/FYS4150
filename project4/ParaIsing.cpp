@@ -60,8 +60,12 @@ int main(int argc, char* argv[])
     exit(1);
   }
   if ((RankProcess == 0) && (argc > 1)) {
+<<<<<<< HEAD
     string outpath = "results/data/";
     filename = outpath+argv[1];
+=======
+    filename=argv[1];
+>>>>>>> bc918d6b5accf59e70e7aa4de492e79c6f47725f
     NSpins = atoi(argv[2]);
     MonteCarloCycles = atoi(argv[3]);
     InitialTemp = atof(argv[4]);
@@ -142,7 +146,10 @@ void MetropolisSampling(int NSpins, int MonteCarloCycles, double Temperature, ve
 	MagneticMoment += 2.0*SpinMatrix(ix,iy);
 	Energy += (double) deltaE;
       }
+<<<<<<< HEAD
 
+=======
+>>>>>>> bc918d6b5accf59e70e7aa4de492e79c6f47725f
     }
     // update expectation values  for local node after a sweep through the lattice
     ExpectationValues(0) += Energy;    ExpectationValues(1) += Energy*Energy;
@@ -185,7 +192,11 @@ void WriteResultstoFile(int NSpins, int MonteCarloCycles, double temperature, ve
   // all expectation values are per spin, divide by 1/NSpins/NSpins
   double AllSpins = 1.0/((double) NSpins*NSpins);
   double HeatCapacity = (E2_ExpectationValues- E_ExpectationValues*E_ExpectationValues)*AllSpins/temperature/temperature;
+<<<<<<< HEAD
   double MagneticSusceptibility = (M2_ExpectationValues - Mabs_ExpectationValues*Mabs_ExpectationValues)*AllSpins/temperature;
+=======
+  double MagneticSusceptibility = (M2_ExpectationValues - M_ExpectationValues*M_ExpectationValues)*AllSpins/temperature;
+>>>>>>> bc918d6b5accf59e70e7aa4de492e79c6f47725f
   ofile << setiosflags(ios::showpoint | ios::uppercase);
   ofile << setw(15) << setprecision(8) << temperature;
   ofile << setw(15) << setprecision(8) << E_ExpectationValues*AllSpins;

@@ -38,7 +38,7 @@ inline int PeriodicBoundary(int i, int limit, int add) {
 // Function to initialise energy and magnetization
 void InitializeLattice(int, mat &, double&, double&);
 // The metropolis algorithm including the loop over Monte Carlo cycles
-void MetropolisSampling(int, int, int, double, vec &);
+void MetropolisSampling(int, int, double, vec &);
 // prints to file the results of the calculations
 void WriteResultstoFile(int, int, double, vec);
 
@@ -63,11 +63,10 @@ int main(int argc, char* argv[])
     string outpath = "results/data/";
     filename = outpath+argv[1];
     NSpins = atoi(argv[2]);
-    BurnInMonteCarloCycles = atoi(argv[3]);
-    MonteCarloCycles = atoi(argv[4]);
-    InitialTemp = atof(argv[5]);
-    FinalTemp = atof(argv[6]);
-    TempStep = atof(argv[7]);
+    MonteCarloCycles = atoi(argv[3]);
+    InitialTemp = atof(argv[4]);
+    FinalTemp = atof(argv[5]);
+    TempStep = atof(argv[6]);
   }
   // Declare new file name and add lattice size to file name, only master node opens file
   if (RankProcess == 0) {
@@ -89,7 +88,7 @@ int main(int argc, char* argv[])
   for (double Temperature = InitialTemp; Temperature <= FinalTemp; Temperature+=TempStep){
     vec LocalExpectationValues = zeros<mat>(5);
     // Start Monte Carlo computation and get local expectation values
-    MetropolisSampling(NSpins, BurnInMonteCarloCycles, MonteCarloCycles, Temperature, LocalExpectationValues);
+    MetropolisSampling(NSpins, MonteCarloCycles, Temperature, LocalExpectationValues);
     // Find total average
     vec TotalExpectationValues = zeros<mat>(5);
     for( int i =0; i < 5; i++){
@@ -110,7 +109,7 @@ int main(int argc, char* argv[])
 
 
 // The Monte Carlo part with the Metropolis algo with sweeps over the lattice
-void MetropolisSampling(int NSpins, int BurnInMonteCarloCycles, int MonteCarloCycles,
+void MetropolisSampling(int NSpins, int MonteCarloCycles,
   double Temperature, vec &ExpectationValues)
 {
   // Initialize the seed and call the Mersienne algo
@@ -127,27 +126,8 @@ void MetropolisSampling(int NSpins, int BurnInMonteCarloCycles, int MonteCarloCy
   // setup array for possible energy changes
   vec EnergyDifference = zeros<mat>(17);
   for( int de =-8; de <= 8; de+=4) EnergyDifference(de+8) = exp(-de/Temperature);
-  
-  int AllSpins = NSpins*NSpins;
 
-  // Run Monte Carlo cycles until the system reaches steady state
-  for (int cycles = 1; cycles <= BurnInMonteCarloCycles; cycles++){
-    // The sweep over the lattice, looping over all spin sites
-    for(int Spins =0; Spins < AllSpins; Spins++) {
-      int ix = (int) (RandomNumberGenerator(gen)*NSpins);
-      int iy = (int) (RandomNumberGenerator(gen)*NSpins);
-      int deltaE =  2*SpinMatrix(ix,iy)*
-	(SpinMatrix(ix,PeriodicBoundary(iy,NSpins,-1))+
-	 SpinMatrix(PeriodicBoundary(ix,NSpins,-1),iy) +
-	 SpinMatrix(ix,PeriodicBoundary(iy,NSpins,1)) +
-	 SpinMatrix(PeriodicBoundary(ix,NSpins,1),iy));
-      if ( RandomNumberGenerator(gen) <= EnergyDifference(deltaE+8) ) {
-	SpinMatrix(ix,iy) *= -1.0;  // flip one spin and accept new spin config
-	MagneticMoment += 2.0*SpinMatrix(ix,iy);
-	Energy += (double) deltaE;
-      }
-    }
-  }
+  int AllSpins = NSpins*NSpins;
 
   // Start Monte Carlo experiments
   for (int cycles = 1; cycles <= MonteCarloCycles; cycles++){

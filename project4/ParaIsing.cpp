@@ -77,6 +77,7 @@ int main(int argc, char* argv[])
     ofile.open(fileout);
   }
   // broadcast to all nodes common variables since only master node reads from command line
+  MPI_Bcast (&BurnInMonteCarloCycles, 1, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Bcast (&MonteCarloCycles, 1, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Bcast (&NSpins, 1, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Bcast (&InitialTemp, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -127,7 +128,7 @@ void MetropolisSampling(int NSpins, int BurnInMonteCarloCycles, int MonteCarloCy
   // setup array for possible energy changes
   vec EnergyDifference = zeros<mat>(17);
   for( int de =-8; de <= 8; de+=4) EnergyDifference(de+8) = exp(-de/Temperature);
-  
+
   int AllSpins = NSpins*NSpins;
 
   // Run Monte Carlo cycles until the system reaches steady state

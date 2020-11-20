@@ -20,10 +20,10 @@ inline int PeriodicBoundary(int i, int limit, int add) {
 // Function to initialise energy and magnetization
 void InitializeLattice(int, mat &, double&, double&, string);
 // The metropolis algorithm including the loop over Monte Carlo cycles
-void MetropolisSampling(int, int, double, vec &, vec &, vec &, vec &, string);
+void MetropolisSampling(int, int, double, vec &, vec &, vec &, vec &, string, int &);
 
 // prints to file the results of the calculations
-void WriteResultstoFile(int, int, vec, vec);
+void WriteResultstoFile(int, int, vec, vec, vec);
 
 // Main program begins here
 
@@ -60,17 +60,19 @@ int main(int argc, char* argv[])
   vec AllMagnetisations = zeros<vec>(MonteCarloCycles);
   vec AverageEnergies = zeros<vec>(MonteCarloCycles);
   vec AverageMagnetisations = zeros<vec>(MonteCarloCycles);
+  int AcceptedConfigs = 0;
 
   // Start Monte Carlo computation and get expectation values
   MetropolisSampling(NSpins, MonteCarloCycles, Temperature, AllEnergies,
-    AllMagnetisations, AverageEnergies, AverageMagnetisations, Orientation);
+    AllMagnetisations, AverageEnergies, AverageMagnetisations, Orientation, AcceptedConfigs);
 
   // Find total average
-  WriteResultstoFile(NSpins, MonteCarloCycles, AverageEnergies, AverageMagnetisations);
+  WriteResultstoFile(NSpins, MonteCarloCycles, AverageEnergies, AverageMagnetisations, AllEnergies);
   ofile.close();  // close output file
   clock_t TimeEnd = clock();
   double TotalTime = (double) ((TimeEnd-TimeStart)/CLOCKS_PER_SEC);
   cout << "Time = " <<  TotalTime  << endl;
+  cout << "Accepted configurations = " << AcceptedConfigs << endl;
   // End MPI
   return 0;
 }
@@ -79,7 +81,7 @@ int main(int argc, char* argv[])
 // The Monte Carlo part with the Metropolis algo with sweeps over the lattice
 void MetropolisSampling(int NSpins, int MonteCarloCycles, double Temperature,
   vec &AllEnergies, vec &AllMagnetisations, vec &AverageEnergies,
-  vec &AverageMagnetisations, string Orientation)
+  vec &AverageMagnetisations, string Orientation, int &AcceptedConfigs)
 {
   // Initialize the seed and call the Mersienne algo
   std::random_device rd;
@@ -113,6 +115,7 @@ void MetropolisSampling(int NSpins, int MonteCarloCycles, double Temperature,
       	SpinMatrix(ix,iy) *= -1.0;  // flip one spin and accept new spin config
       	MagneticMoment += 2.0*SpinMatrix(ix,iy);
       	Energy += (double) deltaE;
+        AcceptedConfigs += 1;
       }
     }
     AllEnergies(cycles) = Energy/AllSpins;
@@ -168,11 +171,13 @@ void InitializeLattice(int NSpins, mat &SpinMatrix,  double& Energy, double& Mag
 
 
 
-void WriteResultstoFile(int NSpins, int MonteCarloCycles, vec AverageEnergies, vec AverageMagnetisations)
+void WriteResultstoFile(int NSpins, int MonteCarloCycles, vec AverageEnergies, vec AverageMagnetisations, vec AllEnergies)
 {
   ofile << setiosflags(ios::showpoint | ios::uppercase);
   for (int i=0; i < MonteCarloCycles; i++){
-    ofile << i+1 << setw(15) << setprecision(8) << AverageEnergies(i)
-    << setw(15) << setprecision(8) << AverageMagnetisations(i) << endl;
+    ofile << i+1
+    << setw(15) << setprecision(8) << AverageEnergies(i)
+    << setw(15) << setprecision(8) << AverageMagnetisations(i)
+    << setw(15) << setprecision(8) << AllEnergies(i) << endl;
     }
 } // end output function

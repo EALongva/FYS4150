@@ -17,6 +17,7 @@ plt.title("Expected energy")
 plt.xlabel("Monte Carlo Cycles")
 plt.legend()
 plt.xscale("log")
+plt.savefig("figures/expnrg_10e6.png", dpi=300)
 
 plt.figure()
 plt.plot(temp1rand["MC"], temp1rand['|M|'], label=r"$T=1$ (random)")
@@ -28,6 +29,7 @@ plt.xlabel("Monte Carlo Cycles")
 plt.xscale("log")
 plt.legend()
 plt.title("Expected magnetisation")
+plt.savefig("figures/expmag_10e6.png", dpi=300)
 
 plt.show()
 

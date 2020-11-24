@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
     AllMagnetisations, AverageEnergies, AverageMagnetisations, Orientation);
 
   // Find total average
-  WriteResultstoFile(NSpins, MonteCarloCycles, AverageEnergies, AverageMagnetisations);
+  //WriteResultstoFile(NSpins, MonteCarloCycles, AverageEnergies, AverageMagnetisations);
   ofile.close();  // close output file
   clock_t TimeEnd = clock();
   double TotalTime = (double) ((TimeEnd-TimeStart)/CLOCKS_PER_SEC);
@@ -99,6 +99,9 @@ void MetropolisSampling(int NSpins, int MonteCarloCycles, double Temperature,
   int AllSpins = NSpins*NSpins;
   double SumAllEnergies = Energy/AllSpins;
   double SumAllMagnetisations = MagneticMoment/AllSpins;
+
+  std::cout << SumAllEnergies << ", " << SumAllMagnetisations << std::endl;
+
   for (int cycles = 0; cycles < MonteCarloCycles; cycles++){
     // The sweep over the lattice, looping over all spin sites
     for(int Spins =0; Spins < AllSpins; Spins++) {
@@ -121,6 +124,10 @@ void MetropolisSampling(int NSpins, int MonteCarloCycles, double Temperature,
     SumAllMagnetisations += AllMagnetisations(cycles);
     AverageEnergies(cycles) = SumAllEnergies/(cycles+1);
     AverageMagnetisations(cycles) = SumAllMagnetisations/(cycles+1);
+
+    std::cout << "sum:" << SumAllEnergies << ", " << SumAllMagnetisations << std::endl;
+    std::cout << "avg: " << AverageEnergies(cycles) << ", " << AverageMagnetisations(cycles) << std::endl;
+
   }
 } // end of Metropolis sampling over spins
 

@@ -90,8 +90,6 @@ void Ising::init()
     state.randu(N,N);
     state.for_each( [](arma::mat::elem_type& val) { set_spin(val); } );
 
-    //cout << "Initial state lattice of dimension = " << N << endl;
-    state.print();
   }
 
   double tempE = 0;
@@ -271,46 +269,6 @@ void Ising::MC(int cycles_in)
 
 }
 
-
-void Ising::paraMC(int cycles_in)
-{
-
-  // make function that runs standard Monte Carlo in parallel, loop over time
-  // in other function
-
-  int cycles = std::pow(10, cycles_in);
-
-  arma::vec Energies(cycles, arma::fill::zeros);
-  arma::vec Magnetisations(cycles, arma::fill::zeros);
-  arma::vec AverageEnergies(cycles, arma::fill::zeros);
-  arma::vec AverageMagnetisations(cycles, arma::fill::zeros);
-
-  double SumAllEnergies = E/Nspins;
-  double SumAllMagnetisations = M/Nspins;
-
-  for (int cyc = 0; cyc < cycles; cyc++){
-
-    for (int spin = 0; spin < Nspins; spin++){
-
-      Metropolis();
-
-    }
-
-    Energies(cyc) = E/Nspins;
-    Magnetisations(cyc) = fabs(M)/Nspins;
-    SumAllEnergies += Energies(cyc);
-    SumAllMagnetisations += Magnetisations(cyc);
-    AverageEnergies(cyc) = SumAllEnergies/(cyc+1);
-    AverageMagnetisations(cyc) = SumAllMagnetisations/(cyc+1);
-
-  }
-
-  avgE = AverageEnergies;
-  avgM = AverageMagnetisations;
-
-}
-
-
 void Ising::burnin(int cycles_in)
 {
 
@@ -415,7 +373,7 @@ void Ising::hello(int &argc, char** &argv){
 void Ising::parallel(int &argc, char** &argv){
 
   // declaring variables
-  int burnin_cycles, MC_cycles, Tlen;
+  int burnin_cycles, MC_cycles, NT;
   double T_init, T_fin, dT;
   std::string filename;
   std::string outpath = "results/data/";
@@ -436,8 +394,8 @@ void Ising::parallel(int &argc, char** &argv){
       T_fin      = atof(argv[6]);
       dT         = atof(argv[7]);
 
-      Tlen       = (int) ((T_fin - T_init)/dT + 0.5);
-      totexpvals    = arma::mat(4,Tlen,arma::fill::zeros);
+      double Tlen =  (T_fin - T_init)/dT;
+      NT = (int) (Tlen+0.5) + 1;
 
     }
     else{
@@ -450,8 +408,8 @@ void Ising::parallel(int &argc, char** &argv){
       T_fin      = 2.4;
       dT         = 0.05;
 
-      Tlen        = (int) ((T_fin - T_init)/dT + 0.5) + 1;
-      totexpvals  = arma::mat(4,Tlen,arma::fill::zeros);
+      double Tlen =  (T_fin - T_init)/dT;
+      NT = (int) (Tlen+0.5) + 1;
 
       filename = outpath + "Simulation_N" + std::to_string(N) + ".csv";
 
@@ -469,6 +427,7 @@ void Ising::parallel(int &argc, char** &argv){
   MPI_Bcast (&burnin_cycles, 1, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Bcast (&MC_cycles, 1, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Bcast (&N, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Bcast (&NT, 1, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Bcast (&T_init, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Bcast (&T_fin, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Bcast (&dT, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -476,6 +435,10 @@ void Ising::parallel(int &argc, char** &argv){
   // fix above variables and start the main temperature loop while timing it
   // check the amount of cycles run
 
+  // matrix to store all variables to be saved later
+  totexpvals  = arma::mat(4,NT,arma::fill::zeros);
+
+  // timing the processes
   double t_init, t_fin, t_total;
   t_init = MPI_Wtime();
 
@@ -490,8 +453,7 @@ void Ising::parallel(int &argc, char** &argv){
     MC(MC_cycles);
 
     for (int j=0; j<4; j++){
-      //std::cout << "j: " << j << ", i: " << i << ", Tlen:" << Tlen << std::endl;
-      //MPI_Reduce(&expvals(j), &totexpvals(j,i), 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+      MPI_Reduce(&expvals(j), &totexpvals(j,i), 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
     }
 
     i ++;

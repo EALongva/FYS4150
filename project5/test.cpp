@@ -11,7 +11,7 @@
 int main(){
 
   // testing rossby class
-  ross rossby(3);
+  rossby ross(3);
   ross.function();
 
   // generating an armadillo array to test data saving and plotting

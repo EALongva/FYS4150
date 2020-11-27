@@ -15,13 +15,16 @@ public:
   double u, v;
 
   // initial psi function
-  arma::vec psi;
+  arma::vec psi_init;
+
+  // streamfunction time evolution matrix (1D, x - spacial, y - time evol)
+  arma::mat psi;
 
   // Initializer
   rossby(arma::vec psi_in);
   rossby(double u_in, double v_in);
   rossby(double u_in, double v_in, arma::vec psi_in);
-  
+
 
   // Functions
   void function();

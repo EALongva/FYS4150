@@ -3,14 +3,12 @@
 using namespace arma;
 using namespace std;
 
-//  Initializer
-rossby(arma::vec psi_in);
-rossby(double u_in, double v_in);
-rossby(double u_in, double v_in, arma::vec psi_in);
+//  Initializers
 
-rossby::rossby(arma::vec psi_in)
+rossby::rossby(arma::vec psi_init_in)
 {
-  psi = psi_in;
+  psi_init = psi_init_in;
+  psi.col(0) = psi_init;
   std::cout << "rossby class object initialized successfully" << std::endl;
   std::cout << "initial streamfunction psi given" << std::endl;
 }
@@ -23,11 +21,12 @@ rossby::rossby(double u_in, double v_in)
   std::cout << "initial velocities u and v given" << std::endl;
 }
 
-rossby::rossby(double u_in, double v_in, arma::vec psi_in)
+rossby::rossby(double u_in, double v_in, arma::vec psi_init_in)
 {
   u = u_in;
   v = v_in;
-  psi = psi_in;
+  psi_init = psi_init_in;
+  psi.col(0) = psi_init;
   std::cout << "rossby class object initialized successfully" << std::endl;
   std::cout << "initial velocities u and v, and initial streamfunction psi given" << std::endl;
 }

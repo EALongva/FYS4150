@@ -28,6 +28,8 @@ public:
 
   // Functions
   void function();
+  void timestep_forward(double &zeta_forward, double psi_forward, double psi_backward, double deltat, double deltax)
+  void timestep_centered(double &zeta_forward, double zeta_backward, double psi_forward, double psi_backward, double deltat, double deltax)
 };
 
 #endif

@@ -56,7 +56,7 @@ arma::vec tridiag_general(arma::vec a, arma::vec b, arma::vec c, arma::vec d, in
   return v;
 }
 
-arma::vec tridiag_special(arma::vec b, arma::vec d, int n){
+arma::vec gaussian_eliminiation(arma::vec b, arma::vec d, int n){
   // setting up the v vector, giving it the same length as input vector b
   // b is the diagonal vector
   arma::vec v(n, arma::fill::zeros);
@@ -95,5 +95,17 @@ arma::vec tridiag_LU(arma::mat A, arma::vec d, int n){
 
   return v;
 }
+
+void timestep_forward(double &zeta_forward, double psi_forward, double psi_backward, double deltat, double deltax)
+{
+  zeta_forward += deltat/(2*deltax)*(psi_forward - psi_backward)
+}
+
+void timestep_centered(double &zeta_forward, double zeta_backward, double psi_forward, double psi_backward, double deltat, double deltax)
+{
+  zeta_forward = zeta_backward + deltat/deltax*(psi_forward - psi_backward))
+}
+
+
 
 //

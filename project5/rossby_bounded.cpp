@@ -12,10 +12,10 @@ using namespace std;
 int main(){
 
   // testing rossby class
-  rossby ross(0.5, 0.5, 10, 10);
+  rossby ross(0.02, 0.1, 1);
   ross.initialize_wave(true, 0, 0);
-  
-  cout << ross.psi.col(0) << endl;
+  ross.evolve_bounded(true);
+  cout << ross.Zeta << endl;
 
   return 0;
 }

@@ -3,13 +3,17 @@
 using namespace arma;
 using namespace std;
 
+inline int periodic(int i, int limit, int add){
+  return (i+limit+add) % (limit);}
+
+
 //  Initializers
 
 rossby::rossby(double dx, double dt, double tfinal)
 {
   endpos = 1.0;
   endtime = tfinal;
-  xdim = (int) endpos/dx-1;  //-1 siden endepunktene er kjente, og ikke beregnes
+  xdim = (int) endpos/dx;  //-1 siden endepunktene er kjente, og ikke beregnes
   tdim = (int) endtime/dt;
   deltax = dx;
   deltat = dt;
@@ -61,6 +65,8 @@ rossby::rossby(double dx, double dt, double tfinal)
 //   return v;
 // }
 
+// Class functions
+
 void rossby::initialize_wave(bool sineWave, double sigma, double x0)
 {
   double x;
@@ -81,6 +87,19 @@ void rossby::initialize_wave(bool sineWave, double sigma, double x0)
   return;
 }
 
+void rossby::zeta_timestep_forward(double &zeta_forward, double psi_forward,
+  double psi_backward)
+{
+  zeta_forward += deltat/(2*deltax)*(psi_forward - psi_backward);
+  return;
+}
+
+void rossby::zeta_timestep_centered(double &zeta_forward, double zeta_backward,
+  double psi_forward, double psi_backward)
+{
+  zeta_forward = zeta_backward + deltat/deltax*(psi_forward - psi_backward);
+  return;
+}
 
 vec rossby::precalculate_offdiag()
 {
@@ -91,18 +110,54 @@ vec rossby::precalculate_offdiag()
   return c_new;
 }
 
-vec rossby::forward_substitution(vec zeta, vec c_new){
-  vec d = zeta*deltax*deltax;
+void rossby::gaussian_elimination(int n, vec c_new)
+{
+  vec d = Zeta.col(n)*deltax*deltax;
   vec d_new(xdim, fill::zeros);
 
-  // forward substitution to find the new equation
+  // forward substitution to find the new equations
   d_new(0) = d(0)*c_new(0);
   for (int j = 1; j < xdim; j++){
     d_new(j) = c_new(j)*(d(j) - d_new(j-1));
   }
-  return d_new;
+
+  // backward substitution to find the new psi
+  Psi.col(n)(xdim-1) = d_new(xdim-1);
+  for (int j = xdim-2; j >= 0; j--){
+    Psi.col(n)(j) = d_new(j) - c_new(j)*Psi.col(n)(j+1);
+  }
+  return;
 }
 
+//
+// vec rossby::forward_substitution(vec zeta, vec c_new){
+//   vec d = zeta*deltax*deltax;
+//   vec d_new(xdim, fill::zeros);
+//
+//   // forward substitution to find the new equation
+//   d_new(0) = d(0)*c_new(0);
+//   for (int j = 1; j < xdim; j++){
+//     d_new(j) = c_new(j)*(d(j) - d_new(j-1));
+//   }
+//   return d_new;
+// }
+
+void rossby::jacobis_method(int n, vec zeta){
+  double hh = deltax*deltax;
+  vec psi_temporary;
+  int iterations = 0; int maxIterations = 10000;
+  double difference = 1.; double maxDifference = 1e-6;
+  while((iterations <= maxIterations) && (difference > maxDifference)){
+    psi_temporary = Psi.col(n); difference = 0.;
+    for(int j = 0; j < xdim; j++){
+      Psi.col(n)(j) = 0.5*(psi_temporary(periodic(j, xdim,1)) + psi_temporary(periodic(j, xdim,-1)) - zeta(j)*hh);
+      difference += fabs(psi_temporary(j)-Psi.col(n)(j));
+    }
+    iterations++;
+    difference /= xdim;
+  }
+  return;
+}
 // arma::vec tridiag_LU(arma::mat A, arma::vec d, int n){
 //
 //   // setting up the v vector, giving it the same length as input vector b
@@ -126,19 +181,6 @@ vec rossby::forward_substitution(vec zeta, vec c_new){
 //   return v;
 // }
 
-void rossby::zeta_timestep_forward(double &zeta_forward, double psi_forward,
-  double psi_backward)
-{
-  zeta_forward += deltat/(2*deltax)*(psi_forward - psi_backward);
-  return;
-}
-
-void rossby::zeta_timestep_centered(double &zeta_forward, double zeta_backward,
-  double psi_forward, double psi_backward)
-{
-  zeta_forward = zeta_backward + deltat/deltax*(psi_forward - psi_backward);
-  return;
-}
 
 void rossby::evolve_bounded(bool forwardStep)
 {
@@ -170,16 +212,41 @@ void rossby::evolve_bounded(bool forwardStep)
     zeta_2previous = zeta_previous;
     zeta_previous = Zeta.col(n+1);
 
-    // Gaussian eliminiation
-    // Forward substitution
-    vec d_new = forward_substitution(Zeta.col(n+1),c_new);
+    gaussian_elimination(n+1, c_new);
 
-    // Backward substitution
-    Psi.col(n+1)(xdim-1) = d_new(xdim-1);
-    for (int j = xdim-2; j = 0; j--){
-      Psi.col(n+1)(j) = d_new(j) - c_new(j)*Psi.col(n+1)(j+1);
-    }
+    // // Gaussian eliminiation
+    // // Forward substitution
+    // vec d_new = forward_substitution(Zeta.col(n+1),c_new);
+    //
+    // // Backward substitution
+    // Psi(xdim-1,n+1) = d_new(xdim-1);
+    // for (int j = xdim-2; j = 0; j--){
+    //   Psi(j,n+1) = d_new(j) - c_new(j)*Psi(j+1,n+1);
+    // }
   }
+  return;
 }
 
+void rossby::evolve_periodic(bool forwardStep)
+{
+  vec zeta_2previous = Zeta.col(0);
+  vec zeta_previous = Zeta.col(0);
+  for(int n = 0; n < tdim-1; n++){
+    // finner den første x-verdien til zeta
+    for(int j = 0; j < xdim; j++){
+      if(forwardStep){
+        zeta_timestep_forward(Zeta.col(n+1)(j), Psi.col(n)(periodic(j, xdim,1)), Psi.col(n)(periodic(j, xdim,-1)));
+      }
+      else{
+        zeta_timestep_centered(Zeta.col(n+1)(j), zeta_2previous(j), Psi.col(n)(periodic(j, xdim,1)), Psi.col(n)(periodic(j, xdim,-1)));
+      }
+    }
+    zeta_2previous = zeta_previous;
+    zeta_previous = Zeta.col(n+1);
+
+    jacobis_method(n+1, Zeta.col(n+1));
+
+  }
+  return;
+}
 //

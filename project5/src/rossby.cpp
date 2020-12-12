@@ -13,7 +13,7 @@ rossby::rossby(double dx, double dt, double tfinal)
 {
   endpos = 1.0;
   endtime = tfinal;
-  xdim = (int) endpos/dx;  //-1 siden endepunktene er kjente, og ikke beregnes
+  xdim = (int) endpos/dx; 
   tdim = (int) endtime/dt;
   deltax = dx;
   deltat = dt;
@@ -87,10 +87,10 @@ void rossby::initialize_wave(bool sineWave, double sigma, double x0)
   return;
 }
 
-void rossby::zeta_timestep_forward(double &zeta_forward, double psi_forward,
+void rossby::zeta_timestep_forward(double &zeta_forward, double zeta, double psi_forward,
   double psi_backward)
 {
-  zeta_forward += deltat/(2*deltax)*(psi_forward - psi_backward);
+  zeta_forward = zeta + deltat/(2.0*deltax)*(psi_forward - psi_backward);
   return;
 }
 
@@ -190,21 +190,21 @@ void rossby::evolve_bounded(bool forwardStep)
   vec c_new = precalculate_offdiag();
   for(int n = 0; n < tdim-1; n++){
     if(forwardStep){
-      zeta_timestep_forward(Zeta.col(n+1)(0), Psi.col(n)(1), psiClosed);
+      zeta_timestep_forward(Zeta.col(n+1)(0), zeta_previous(0), Psi.col(n)(1), psiClosed);
     }
     else{
       zeta_timestep_centered(Zeta.col(n+1)(0), zeta_2previous(0), Psi.col(n)(1), psiClosed);
     }
     for(int j = 1; j < xdim-1; j++){
       if(forwardStep){
-        zeta_timestep_forward(Zeta.col(n+1)(j), Psi.col(n)(j+1), Psi.col(n)(j-1));
+        zeta_timestep_forward(Zeta.col(n+1)(j), zeta_previous(j), Psi.col(n)(j+1), Psi.col(n)(j-1));
       }
       else{
         zeta_timestep_centered(Zeta.col(n+1)(j), zeta_2previous(j), Psi.col(n)(j+1), Psi.col(n)(j-1));
       }
     }
     if(forwardStep){
-      zeta_timestep_forward(Zeta.col(n+1)(xdim-1), psiClosed, Psi.col(n)(xdim-2));
+      zeta_timestep_forward(Zeta.col(n+1)(xdim-1), zeta_previous(xdim-1), psiClosed, Psi.col(n)(xdim-2));
     }
     else{
       zeta_timestep_centered(Zeta.col(n+1)(xdim-1), zeta_2previous(xdim-1), psiClosed, Psi.col(n)(xdim-2));
@@ -235,7 +235,7 @@ void rossby::evolve_periodic(bool forwardStep)
     // finner den første x-verdien til zeta
     for(int j = 0; j < xdim; j++){
       if(forwardStep){
-        zeta_timestep_forward(Zeta.col(n+1)(j), Psi.col(n)(periodic(j, xdim,1)), Psi.col(n)(periodic(j, xdim,-1)));
+        zeta_timestep_forward(Zeta.col(n+1)(j), zeta_previous(j), Psi.col(n)(periodic(j, xdim,1)), Psi.col(n)(periodic(j, xdim,-1)));
       }
       else{
         zeta_timestep_centered(Zeta.col(n+1)(j), zeta_2previous(j), Psi.col(n)(periodic(j, xdim,1)), Psi.col(n)(periodic(j, xdim,-1)));

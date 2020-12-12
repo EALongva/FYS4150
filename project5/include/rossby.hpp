@@ -27,7 +27,7 @@ public:
   // Functions
   //void function();
   void initialize_wave(bool sineWave, double sigma, double x0);
-  void zeta_timestep_forward(double &zeta_forward, double psi_forward, double psi_backward);
+  void zeta_timestep_forward(double &zeta_forward, double zeta, double psi_forward, double psi_backward);
   void zeta_timestep_centered(double &zeta_forward, double zeta_backward, double psi_forward, double psi_backward);
   arma::vec precalculate_offdiag();
   //arma::vec forward_substitution(arma::vec zeta, arma::vec c_new);

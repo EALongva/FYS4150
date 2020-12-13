@@ -13,7 +13,7 @@ rossby::rossby(double dx, double dt, double tfinal)
 {
   endpos = 1.0;
   endtime = tfinal;
-  xdim = (int) endpos/dx; 
+  xdim = (int) endpos/dx;
   tdim = (int) endtime/dt;
   deltax = dx;
   deltat = dt;
@@ -143,14 +143,14 @@ void rossby::gaussian_elimination(int n, vec c_new)
 // }
 
 void rossby::jacobis_method(int n, vec zeta){
-  double hh = deltax*deltax;
+  double dxdx = deltax*deltax;
   vec psi_temporary;
   int iterations = 0; int maxIterations = 10000;
   double difference = 1.; double maxDifference = 1e-6;
   while((iterations <= maxIterations) && (difference > maxDifference)){
     psi_temporary = Psi.col(n); difference = 0.;
     for(int j = 0; j < xdim; j++){
-      Psi.col(n)(j) = 0.5*(psi_temporary(periodic(j, xdim,1)) + psi_temporary(periodic(j, xdim,-1)) - zeta(j)*hh);
+      Psi.col(n)(j) = 0.5*(psi_temporary(periodic(j, xdim,1)) + psi_temporary(periodic(j, xdim,-1)) - zeta(j)*dxdx);
       difference += fabs(psi_temporary(j)-Psi.col(n)(j));
     }
     iterations++;

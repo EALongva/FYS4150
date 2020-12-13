@@ -10,8 +10,8 @@ using namespace arma;
 using namespace std;
 
 int main(int argc, char *argv[]){
-  string zetaname = "results/data/zeta_2d_bounded";
-  string psiname = "results/data/psi_2d_bounded";
+  string zetaname = "results/data/zeta_2d_periodic";
+  string psiname = "results/data/psi_2d_periodic";
 
   // funksjonen tar tre cmd argument, dt, dx og slutt tid
   double deltapos = atof(argv[1]);
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]){
   // testing rossby class
   rossby ross(deltapos, deltatime, endtime);
   ross.initialize_wave(sineWave, sigma, x0, y0);
-  ross.evolve_bounded(forwardStep);
+  ross.evolve_periodic(forwardStep);
   ross.Psi.slice(10).save(psiname, arma::csv_ascii);
 
   return 0;

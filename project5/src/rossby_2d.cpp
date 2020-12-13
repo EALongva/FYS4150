@@ -70,21 +70,25 @@ rossby::rossby(double dpos, double dt, double tfinal)
 
 // Class functions
 
-void rossby::initialize_wave(bool sineWave, double sigma, double x0)
+void rossby::initialize_wave(bool sineWave, double sigma, double x0, double y0)
 {
   double x;
-  for (int j = 0; j < xdim; j++){
-    x = (j+1)*deltax;
-    if (sineWave)
-    {
-      double pi = 2*acos(0.0);
-      Psi.col(0)(j) = sin(4*pi*x);
-      Zeta.col(0)(j) = -16*pi*pi*sin(4*pi*x);
-    }
-    else
-    {
-      Psi.col(0)(j) = exp(-pow((x-x0)/sigma,2));
-      Zeta.col(0)(j) = -2/pow(sigma,4)*Psi.col(0)(j)*(sigma*sigma - 2*(x-x0));
+  double y;
+  for (int i = 0; i < xdim; i++){
+    x = (i+1)*deltax;
+    for (int j = 0; j < ydim; j++){
+      y = (j+1)*deltay;
+      if (sineWave)
+      {
+        double pi = 2*acos(0.0);
+        Psi.slice(0)(i,j) = sin(4*pi*x)*sin(4*pi*y);
+        Zeta.slice(0)(i,j) = -32*pi*pi*Psi.slice(0)(i,j);
+      }
+      else
+      {
+        Psi.slice(0)(i,j) = exp(-pow((x-x0)/sigma,2)-pow((y-y0)/sigma,2));
+        Zeta.slice(0)(i,j) = -4/pow(sigma,4)*Psi.slice(0)(i,j)*(sigma*sigma-(x-x0)-(y-y0));
+      }
     }
   }
   return;
@@ -104,75 +108,133 @@ void rossby::zeta_timestep_centered(double &zeta_forward, double zeta_backward,
   return;
 }
 
-void rossby::jacobis_method_2d(int n, vec zeta){
-  double hh = deltax*deltax;
-  vec psi_temporary;
+void rossby::jacobis_method_2d(int n, mat zeta){
+  double psiClosed = 0.0;
+  double dxdy = deltax*deltay;
+  mat psi_temporary;
   int iterations = 0; int maxIterations = 10000;
   double difference = 1.; double maxDifference = 1e-6;
+
   while((iterations <= maxIterations) && (difference > maxDifference)){
-    psi_temporary = Psi.col(n); difference = 0.;
-    for(int j = 0; j < xdim; j++){
-      Psi.col(n)(j) = 0.5*(psi_temporary(periodic(j, xdim,1)) + psi_temporary(periodic(j, xdim,-1)) - zeta(j)*hh);
-      difference += fabs(psi_temporary(j)-Psi.col(n)(j));
+    psi_temporary = Psi.slice(n); difference = 0.;
+
+    //grensenbetingelser sider
+    for(int l = 1; l < xdim-1; l++){
+      Psi.slice(n)(l,0) = 0.25*(psi_temporary(l,1)+psiClosed
+                 +psi_temporary(l+1,0)+psi_temporary(l-1,0)
+                 -dxdy*zeta(l,0));
+      difference += fabs(psi_temporary(l,0)-Psi.slice(n)(l,0));
+      Psi.slice(n)(l,ydim-1) = 0.25*(psiClosed + psi_temporary(l, ydim-2)
+                 +psi_temporary(l+1,ydim-1)+psi_temporary(l-1,ydim-1)
+                 -dxdy*zeta(l,ydim-1));
+      difference += fabs(psi_temporary(l,ydim-1)-Psi.slice(n)(l,ydim-1));
+    }
+
+    for(int l = 1; l < ydim-1; l++){
+      Psi.slice(n)(0,l) = 0.25*(psi_temporary(0,l+1)+psi_temporary(0,l-1)
+                 +psi_temporary(1,l)+psiClosed
+                 -dxdy*zeta(0,l));
+      difference += fabs(psi_temporary(0,l)-Psi.slice(n)(0,l));
+      Psi.slice(n)(xdim-1,l) = 0.25*(psi_temporary(xdim-1,l+1)+psi_temporary(xdim-1,l-1)
+                 +psiClosed+psi_temporary(xdim-2,l)
+                 -dxdy*zeta(xdim-1,l));
+      difference += fabs(psi_temporary(xdim-1,l)-Psi.slice(n)(xdim-1,l));
+    }
+
+    //grensebetingelser hjørner
+    Psi.slice(n)(0,0) = 0.25*(psi_temporary(0,1)+psiClosed
+               +psi_temporary(1,0)+psiClosed
+               -dxdy*zeta(0,0));
+    difference += fabs(psi_temporary(0,0)-Psi.slice(n)(0,0));
+    Psi.slice(n)(xdim-1,ydim-1) = 0.25*(psiClosed+psi_temporary(xdim-1,ydim-2)
+               +psiClosed+psi_temporary(xdim-2,ydim-1)
+               -dxdy*zeta(xdim-1,ydim-1));
+    difference += fabs(psi_temporary(xdim-1,ydim-1)-Psi.slice(n)(xdim-1,ydim-1));
+    Psi.slice(n)(0,ydim-1) = 0.25*(psiClosed+psi_temporary(0,ydim-2)
+               +psi_temporary(1,ydim-1)+psiClosed
+               -dxdy*zeta(0,ydim-1));
+    difference += fabs(psi_temporary(0,ydim-1)-Psi.slice(n)(0,ydim-1));
+    Psi.slice(n)(xdim-1,0) = 0.25*(psi_temporary(xdim-1,1)+psiClosed
+               +psiClosed+psi_temporary(xdim-2,0)
+               -dxdy*zeta(xdim-1,0));
+    difference += fabs(psi_temporary(xdim-1,0)-Psi.slice(n)(xdim-1,0));
+
+    //ittererer over de indre punktene
+    for(int i = 1; i < xdim-1; i++){
+      for(int j = 1; j < ydim-1; j++){
+        Psi.slice(n)(i,j) = 0.25*(psi_temporary(i,j+1)+psi_temporary(i,j-1)
+                   +psi_temporary(i+1,j)+psi_temporary(i-1,j)
+                   -dxdy*zeta(i,j));
+        difference += fabs(psi_temporary(i,j)-Psi.slice(n)(i,j));
+      }
     }
     iterations++;
-    difference /= xdim;
+    difference /= (xdim*ydim);
   }
   return;
 }
 
 void rossby::evolve_bounded(bool forwardStep)
 {
-  double psiClosed = 0;
-  vec zeta_2previous = Zeta.col(0);
-  vec zeta_previous = Zeta.col(0);
+  double psiClosed = 0.0;
+  mat zeta_2previous = Zeta.slice(0);
+  mat zeta_previous = Zeta.slice(0);
   for(int n = 0; n < tdim-1; n++){
-    if(forwardStep){
-      zeta_timestep_forward(Zeta.col(n+1)(0), zeta_previous(0), Psi.col(n)(1), psiClosed);
-    }
-    else{
-      zeta_timestep_centered(Zeta.col(n+1)(0), zeta_2previous(0), Psi.col(n)(1), psiClosed);
-    }
-    for(int j = 1; j < xdim-1; j++){
+    for (int j = 0; j < ydim; j++){
       if(forwardStep){
-        zeta_timestep_forward(Zeta.col(n+1)(j), zeta_previous(j), Psi.col(n)(j+1), Psi.col(n)(j-1));
+        zeta_timestep_forward(Zeta.slice(n+1)(0,j), zeta_previous(0,j), Psi.slice(n)(1,j), psiClosed);
       }
       else{
-        zeta_timestep_centered(Zeta.col(n+1)(j), zeta_2previous(j), Psi.col(n)(j+1), Psi.col(n)(j-1));
+        zeta_timestep_centered(Zeta.slice(n+1)(0,j), zeta_2previous(0,j), Psi.slice(n)(1,j), psiClosed);
+      }
+      for(int i = 1; i < xdim-1; i++){
+        if(forwardStep){
+          zeta_timestep_forward(Zeta.slice(n+1)(i,j), zeta_previous(i,j), Psi.slice(n)(i+1,j), Psi.slice(n)(i-1,j));
+        }
+        else{
+          zeta_timestep_centered(Zeta.slice(n+1)(i,j), zeta_2previous(i,j), Psi.slice(n)(i+1,j), Psi.slice(n)(i-1,j));
+        }
+      }
+      if(forwardStep){
+        zeta_timestep_forward(Zeta.slice(n+1)(xdim-1,j), zeta_previous(xdim-1,j), psiClosed, Psi.slice(n)(xdim-2,j));
+      }
+      else{
+        zeta_timestep_centered(Zeta.slice(n+1)(xdim-1,j), zeta_2previous(xdim-1,j), psiClosed, Psi.slice(n)(xdim-2,j));
       }
     }
-    if(forwardStep){
-      zeta_timestep_forward(Zeta.col(n+1)(xdim-1), zeta_previous(xdim-1), psiClosed, Psi.col(n)(xdim-2));
-    }
-    else{
-      zeta_timestep_centered(Zeta.col(n+1)(xdim-1), zeta_2previous(xdim-1), psiClosed, Psi.col(n)(xdim-2));
-    }
     zeta_2previous = zeta_previous;
-    zeta_previous = Zeta.col(n+1);
+    zeta_previous = Zeta.slice(n+1);
 
-    jacobis_method_2d(n+1, Zeta.col(n+1));
+    jacobis_method_2d(n+1, Zeta.slice(n+1));
   }
   return;
 }
 
 void rossby::evolve_periodic(bool forwardStep)
 {
-  vec zeta_2previous = Zeta.col(0);
-  vec zeta_previous = Zeta.col(0);
+  double psiClosed = 0.0;
+  mat zeta_2previous = Zeta.slice(0);
+  mat zeta_previous = Zeta.slice(0);
   for(int n = 0; n < tdim-1; n++){
-    // finner den første x-verdien til zeta
-    for(int j = 0; j < xdim; j++){
-      if(forwardStep){
-        zeta_timestep_forward(Zeta.col(n+1)(j), zeta_previous(j), Psi.col(n)(periodic(j, xdim,1)), Psi.col(n)(periodic(j, xdim,-1)));
+    for (int i = 0; i < xdim; i++){
+      //Zeta.slice(n+1)(i,0) = psiClosed;
+      //for(int j = 1; j < ydim-1; j++){
+      for(int j = 0; j < ydim; j++){
+        if(forwardStep){
+          zeta_timestep_forward(Zeta.slice(n+1)(i,j), zeta_previous(i,j),
+          Psi.slice(n)(periodic(i, xdim,1),j), Psi.slice(n)(periodic(i, xdim,-1),j));
+        }
+        else{
+          zeta_timestep_centered(Zeta.slice(n+1)(i,j), zeta_2previous(i,j),
+          Psi.slice(n)(periodic(i, xdim,1),j), Psi.slice(n)(periodic(i, xdim,-1),j));
+        }
       }
-      else{
-        zeta_timestep_centered(Zeta.col(n+1)(j), zeta_2previous(j), Psi.col(n)(periodic(j, xdim,1)), Psi.col(n)(periodic(j, xdim,-1)));
-      }
+      //Zeta.slice(n+1)(i,ydim-1) = psiClosed;
     }
     zeta_2previous = zeta_previous;
-    zeta_previous = Zeta.col(n+1);
+    zeta_previous = Zeta.slice(n+1);
 
-    jacobis_method_2d(n+1, Zeta.col(n+1));
+    jacobis_method_2d(n+1, Zeta.slice(n+1));
 
   }
   return;

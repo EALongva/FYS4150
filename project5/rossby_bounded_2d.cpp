@@ -10,7 +10,6 @@ using namespace arma;
 using namespace std;
 
 int main(int argc, char *argv[]){
-  string zetaname = "results/data/zeta_2d_bounded";
   string psiname = "results/data/psi_2d_bounded";
 
   // funksjonen tar tre cmd argument, dt, dx og slutt tid
@@ -22,40 +21,37 @@ int main(int argc, char *argv[]){
   bool sineWave;
   if(atof(argv[4])==0){
     sineWave = true;
-    zetaname += "_sine";
     psiname += "_sine";
   }
   else{
     sineWave = false;
-    zetaname += "_gaussian";
     psiname += "_gaussian";
-    if (argc > 5){
-      sigma = atof(argv[6]);
-      x0 = atof(argv[7]);
-      y0 = atof(argv[8]);
-
-    }
   }
 
   bool forwardStep;
   if(atof(argv[5])==0){
     forwardStep = true;
-    zetaname += "_forward";
     psiname += "_forward";
   }
   else{
     forwardStep = false;
-    zetaname += "_centered";
     psiname += "_centered";
   }
-  zetaname += ".csv";
-  psiname += ".csv";
 
-  // testing rossby class
+  vec times = {0, 50/deltatime-1, 100/deltatime-1, 150/deltatime-1};
+  string times_list[4] = {"0", "50", "100", "150"};
+  string psiname_temp;
+
   rossby ross(deltapos, deltatime, endtime);
   ross.initialize_wave(sineWave, sigma, x0, y0);
   ross.evolve_bounded(forwardStep);
-  ross.Psi.slice(10).save(psiname, arma::csv_ascii);
+
+  for (int i = 0; i < 4; i++){
+    psiname_temp = psiname;
+    psiname_temp = psiname_temp+times_list[i]+".csv";
+    ross.Psi.slice((int) times(i)).save(psiname_temp, arma::csv_ascii);
+  }
 
   return 0;
+
 }

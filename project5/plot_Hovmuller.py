@@ -12,12 +12,12 @@ data_centered = pd.read_csv(datadir+"psi_"+wave+"_centered.csv", sep=',', header
 
 x = np.linspace(0, 1, len(data_centered.iloc[:,0]))
 t = np.linspace(0, 150, len(data_centered.iloc[0, :]))
+data_flipped = np.flip(np.transpose(np.array(data_centered)),0)
 
-levels = np.linspace(-1.1, 1.1, 12)
 fig, ax = plt.subplots()
-c = ax.contourf(t,x, np.array(data_centered))#, levels=levels, vmin=-1.1, vmax=1.1)
-ax.set_xlabel("Time")
-ax.set_ylabel("Spatial extent")
+c = ax.contourf(x, t, data_flipped)
+ax.set_xlabel("East-west spatial extent")
+ax.set_ylabel("Time")
 fig.colorbar(c, label="Amplitude")
-plt.savefig(figdir + "hovmuller_"+wave+".png",)
+#plt.savefig(figdir + "hovmuller_"+wave+".png",bbox_inches = 'tight')
 plt.show()

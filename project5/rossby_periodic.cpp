@@ -10,7 +10,6 @@ using namespace arma;
 using namespace std;
 
 int main(int argc, char *argv[]){
-  string zetaname = "results/data/zeta_periodic";
   string psiname = "results/data/psi_periodic";
 
   // funksjonen tar tre cmd argument, dt, dx og slutt tid
@@ -22,31 +21,22 @@ int main(int argc, char *argv[]){
   bool sineWave;
   if(atof(argv[4])==0){
     sineWave = true;
-    zetaname += "_sine";
     psiname += "_sine";
   }
   else{
     sineWave = false;
-    zetaname += "_gaussian";
     psiname += "_gaussian";
-    if (argc > 5){
-      sigma = atof(argv[6]);
-      x0 = atof(argv[7]);
-    }
   }
 
   bool forwardStep;
   if(atof(argv[5])==0){
     forwardStep = true;
-    zetaname += "_forward";
     psiname += "_forward";
   }
   else{
     forwardStep = false;
-    zetaname += "_centered";
     psiname += "_centered";
   }
-  zetaname += ".csv";
   psiname += ".csv";
 
   // testing rossby class

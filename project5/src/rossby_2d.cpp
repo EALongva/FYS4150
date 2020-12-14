@@ -7,7 +7,7 @@ inline int periodic(int i, int limit, int add){
   return (i+limit+add) % (limit);}
 
 
-//  Initializers
+//  Initializer
 
 rossby::rossby(double dpos, double dt, double tfinal)
 {
@@ -24,49 +24,6 @@ rossby::rossby(double dpos, double dt, double tfinal)
   Zeta = cube(xdim, ydim, tdim, fill::zeros);
   cout << "rossby class object initialized successfully" << endl;
 }
-//
-// rossby::rossby(double u_in, double v_in)
-// {
-//   u = u_in;
-//   v = v_in;
-//   std::cout << "rossby class object initialized successfully" << std::endl;
-//   std::cout << "initial velocities u and v given" << std::endl;
-// }
-//
-// rossby::rossby(double u_in, double v_in, arma::vec psi_init_in)
-// {
-//   u = u_in;
-//   v = v_in;
-//   psi_init = psi_init_in;
-//   psi.col(0) = psi_init;
-//   std::cout << "rossby class object initialized successfully" << std::endl;
-//   std::cout << "initial velocities u and v, and initial streamfunction psi given" << std::endl;
-// }
-//
-//  class methods
-// void rossby::function()
-// {
-//   std::cout << "test function for exampleClass, number = " << deltax << std::endl;
-// }
-
-//  functions from project 1 for calculating Laplacian
-
-// arma::vec tridiag_general(arma::vec a, arma::vec b, arma::vec c, arma::vec d, int n){
-//   // setting up the v vector, giving it the same length as input vector b
-//   // b is the diagonal vector
-//   arma::vec v(n, arma::fill::zeros);
-//   // updating the diagonal vector elements "forward sweep"
-//   c(0) = c(0)/b(0);
-//   d(0) = d(0)/b(0);
-//   for (int i = 1; i <= n-2; i++){
-//     c(i) = c(i)/(b(i)-a(i-1)*c(i-1));
-//     d(i) = (d(i)-a(i-1)*d(i-1))/(b(i)-a(i-1)*c(i-1));
-//   }
-//   //backward substitution computes the resulting vector v
-//   v(n-1) = (d(n-1)-a(n-2)*d(n-2))/(b(n-1)-a(n-2)*c(n-2)); //v(n-1) = d(n-1)
-//   for (int i = n-2; i >= 0; i--) v(i) = d(i)-c(i)*v(i+1);
-//   return v;
-// }
 
 // Class functions
 
@@ -87,7 +44,7 @@ void rossby::initialize_wave(bool sineWave, double sigma, double x0, double y0)
       else
       {
         Psi.slice(0)(i,j) = exp(-pow((x-x0)/sigma,2)-pow((y-y0)/sigma,2));
-        Zeta.slice(0)(i,j) = -4/pow(sigma,4)*Psi.slice(0)(i,j)*(sigma*sigma-(x-x0)-(y-y0));
+        Zeta.slice(0)(i,j) = -4/pow(sigma,4)*Psi.slice(0)(i,j)*(sigma*sigma-pow(x-x0,2)-pow(y-y0,2));
       }
     }
   }

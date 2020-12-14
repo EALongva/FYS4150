@@ -3,6 +3,7 @@
 using namespace arma;
 using namespace std;
 
+// Modulo indexing to get periodic boundary conditions
 inline int periodic(int i, int limit, int add){
   return (i+limit+add) % (limit);}
 
@@ -11,17 +12,17 @@ inline int periodic(int i, int limit, int add){
 
 rossby::rossby(double dpos, double dt, double tfinal)
 {
-  endposx = 1.0;
-  endposy = 1.0;
-  endtime = tfinal;
-  xdim = (int) endposx/dpos;
-  ydim = (int) endposy/dpos;
-  tdim = (int) endtime/dt;
-  deltax = dpos;
-  deltay = dpos;
-  deltat = dt;
-  Psi = cube(xdim, ydim, tdim, fill::zeros);
-  Zeta = cube(xdim, ydim, tdim, fill::zeros);
+  endposx = 1.0; // Length of spatial domain in x-direction
+  endposy = 1.0; // Length of spatial domain in y-direction
+  endtime = tfinal; // Length of time period
+  xdim = (int) endposx/dpos; // Spatial x dimension
+  ydim = (int) endposy/dpos; // Spatial y dimension
+  tdim = (int) endtime/dt; // Temporal dimension
+  deltax = dpos; // x grid space
+  deltay = dpos; // y grid space
+  deltat = dt; // time step
+  Psi = cube(xdim, ydim, tdim, fill::zeros); // Streamfunction matrix
+  Zeta = cube(xdim, ydim, tdim, fill::zeros); // Vorticity cube
   cout << "rossby class object initialized successfully" << endl;
 }
 
@@ -29,6 +30,7 @@ rossby::rossby(double dpos, double dt, double tfinal)
 
 void rossby::initialize_wave(bool sineWave, double sigma, double x0, double y0)
 {
+  // Initialize wave in first time point, either a sine or a Gaussian
   double x;
   double y;
   for (int i = 0; i < xdim; i++){
@@ -54,6 +56,7 @@ void rossby::initialize_wave(bool sineWave, double sigma, double x0, double y0)
 void rossby::zeta_timestep_forward(double &zeta_forward, double zeta, double psi_forward,
   double psi_backward)
 {
+  // Forward difference time step
   zeta_forward = zeta + deltat/(2.0*deltax)*(psi_forward - psi_backward);
   return;
 }
@@ -61,11 +64,13 @@ void rossby::zeta_timestep_forward(double &zeta_forward, double zeta, double psi
 void rossby::zeta_timestep_centered(double &zeta_forward, double zeta_backward,
   double psi_forward, double psi_backward)
 {
+  // Centered difference timestep
   zeta_forward = zeta_backward + deltat/deltax*(psi_forward - psi_backward);
   return;
 }
 
 void rossby::jacobis_method_2d(int n, mat zeta){
+
   double psiClosed = 0.0;
   double dxdy = deltax*deltay;
   mat psi_temporary;
@@ -75,7 +80,7 @@ void rossby::jacobis_method_2d(int n, mat zeta){
   while((iterations <= maxIterations) && (difference > maxDifference)){
     psi_temporary = Psi.slice(n); difference = 0.;
 
-    //grensenbetingelser sider
+    // Interate over all edges
     for(int l = 1; l < xdim-1; l++){
       Psi.slice(n)(l,0) = 0.25*(psi_temporary(l,1)+psiClosed
                  +psi_temporary(l+1,0)+psi_temporary(l-1,0)
@@ -98,7 +103,7 @@ void rossby::jacobis_method_2d(int n, mat zeta){
       difference += fabs(psi_temporary(xdim-1,l)-Psi.slice(n)(xdim-1,l));
     }
 
-    //grensebetingelser hjørner
+    // Iterate over each corner
     Psi.slice(n)(0,0) = 0.25*(psi_temporary(0,1)+psiClosed
                +psi_temporary(1,0)+psiClosed
                -dxdy*zeta(0,0));
@@ -116,7 +121,7 @@ void rossby::jacobis_method_2d(int n, mat zeta){
                -dxdy*zeta(xdim-1,0));
     difference += fabs(psi_temporary(xdim-1,0)-Psi.slice(n)(xdim-1,0));
 
-    //ittererer over de indre punktene
+    // Iterate over interior points
     for(int i = 1; i < xdim-1; i++){
       for(int j = 1; j < ydim-1; j++){
         Psi.slice(n)(i,j) = 0.25*(psi_temporary(i,j+1)+psi_temporary(i,j-1)
@@ -126,7 +131,7 @@ void rossby::jacobis_method_2d(int n, mat zeta){
       }
     }
     iterations++;
-    difference /= (xdim*ydim);
+    difference /= (xdim*ydim); // Divide difference by number of points
   }
   return;
 }
@@ -136,7 +141,9 @@ void rossby::evolve_bounded(bool forwardStep)
   double psiClosed = 0.0;
   mat zeta_2previous = Zeta.slice(0);
   mat zeta_previous = Zeta.slice(0);
+  // looping over each time step
   for(int n = 0; n < tdim-1; n++){
+    // calculating the new voriticty at the left boundary
     for (int j = 0; j < ydim; j++){
       if(forwardStep){
         zeta_timestep_forward(Zeta.slice(n+1)(0,j), zeta_previous(0,j), Psi.slice(n)(1,j), psiClosed);
@@ -144,6 +151,7 @@ void rossby::evolve_bounded(bool forwardStep)
       else{
         zeta_timestep_centered(Zeta.slice(n+1)(0,j), zeta_2previous(0,j), Psi.slice(n)(1,j), psiClosed);
       }
+        // calculating the new interior vorticity
       for(int i = 1; i < xdim-1; i++){
         if(forwardStep){
           zeta_timestep_forward(Zeta.slice(n+1)(i,j), zeta_previous(i,j), Psi.slice(n)(i+1,j), Psi.slice(n)(i-1,j));
@@ -152,6 +160,7 @@ void rossby::evolve_bounded(bool forwardStep)
           zeta_timestep_centered(Zeta.slice(n+1)(i,j), zeta_2previous(i,j), Psi.slice(n)(i+1,j), Psi.slice(n)(i-1,j));
         }
       }
+      // calculating the new vorticity at the right boundary
       if(forwardStep){
         zeta_timestep_forward(Zeta.slice(n+1)(xdim-1,j), zeta_previous(xdim-1,j), psiClosed, Psi.slice(n)(xdim-2,j));
       }
@@ -159,9 +168,11 @@ void rossby::evolve_bounded(bool forwardStep)
         zeta_timestep_centered(Zeta.slice(n+1)(xdim-1,j), zeta_2previous(xdim-1,j), psiClosed, Psi.slice(n)(xdim-2,j));
       }
     }
+    // storing the two previous vortitices two use in next timestep
     zeta_2previous = zeta_previous;
     zeta_previous = Zeta.slice(n+1);
 
+    // updating the streamfunction
     jacobis_method_2d(n+1, Zeta.slice(n+1));
   }
   return;
@@ -172,7 +183,9 @@ void rossby::evolve_periodic(bool forwardStep)
   double psiClosed = 0.0;
   mat zeta_2previous = Zeta.slice(0);
   mat zeta_previous = Zeta.slice(0);
+
   for(int n = 0; n < tdim-1; n++){
+    // calculating the new vorticity in each spatial point using periodic boundaries
     for (int i = 0; i < xdim; i++){
       //Zeta.slice(n+1)(i,0) = psiClosed;
       //for(int j = 1; j < ydim-1; j++){
@@ -188,9 +201,11 @@ void rossby::evolve_periodic(bool forwardStep)
       }
       //Zeta.slice(n+1)(i,ydim-1) = psiClosed;
     }
+    // storing the two previous vortitices two use in next timestep
     zeta_2previous = zeta_previous;
     zeta_previous = Zeta.slice(n+1);
 
+    // updating the streamfunction
     jacobis_method_2d(n+1, Zeta.slice(n+1));
 
   }

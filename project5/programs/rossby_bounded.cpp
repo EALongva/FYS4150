@@ -12,12 +12,13 @@ using namespace std;
 int main(int argc, char *argv[]){
   string psiname = "../results/data/psi_bounded";
 
-  // funksjonen tar tre cmd argument, dt, dx og slutt tid
+  // Takes size of grid space, size of time step and length of time period as input
   double deltapos = atof(argv[1]);
   double deltatime = atof(argv[2]);
   double endtime = atof(argv[3]);
   double sigma = 0.1; double x0 = 0.5;
 
+  // Takes two additional input arguments that determines initial wave and time step method
   bool sineWave;
   if(atof(argv[4])==0){
     sineWave = true;
@@ -39,7 +40,7 @@ int main(int argc, char *argv[]){
   }
   psiname += ".csv";
 
-  // testing rossby class
+  // Rossby instance with bounded domain
   rossby ross(deltapos, deltatime, endtime);
   ross.initialize_wave(sineWave, sigma, x0);
   ross.evolve_bounded(forwardStep);

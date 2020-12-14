@@ -10,7 +10,7 @@ using namespace arma;
 using namespace std;
 
 int main(int argc, char *argv[]){
-  string psiname = "results/data/psi_2d_periodic";
+  string psiname = "../results/data/psi_2d_bounded";
 
   // funksjonen tar tre cmd argument, dt, dx og slutt tid
   double deltapos = atof(argv[1]);
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]){
 
   rossby ross(deltapos, deltatime, endtime);
   ross.initialize_wave(sineWave, sigma, x0, y0);
-  ross.evolve_periodic(forwardStep);
+  ross.evolve_bounded(forwardStep);
 
   for (int i = 0; i < 4; i++){
     psiname_temp = psiname;
@@ -53,4 +53,5 @@ int main(int argc, char *argv[]){
   }
 
   return 0;
+
 }

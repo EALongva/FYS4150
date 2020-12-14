@@ -4,8 +4,8 @@ from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter
 import pandas as pd
 plt.rcParams.update({'font.size': 14})
 
-datadir = "results/data/"
-figdir = "results/figures/"
+datadir = "../results/data/"
+figdir = "../results/figures/"
 
 wave = "periodic_gaussian"
 times = [50, 100, 150]

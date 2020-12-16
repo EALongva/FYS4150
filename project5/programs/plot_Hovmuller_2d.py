@@ -7,7 +7,7 @@ plt.rcParams.update({'font.size': 14})
 datadir = "../results/data/"
 figdir = "../results/figures/"
 
-wave = "periodic_gaussian"
+wave = "periodic_sine"
 times = [50, 100, 150]
 
 data1 = pd.read_csv(datadir+"psi_2d_"+wave+"_forward0.csv", sep=',', header=None)
@@ -17,26 +17,26 @@ data4 = pd.read_csv(datadir+"psi_2d_"+wave+"_forward150.csv", sep=',', header=No
 
 x = np.linspace(0, 1, len(data1.iloc[:,0]))
 y = np.linspace(0, 1, len(data1.iloc[0, :]))
-data_flipped1 = np.flip(np.transpose(np.array(data1)),0)
-data_flipped2 = np.flip(np.transpose(np.array(data2)),0)
-data_flipped3 = np.flip(np.transpose(np.array(data3)),0)
-data_flipped4 = np.flip(np.transpose(np.array(data4)),0)
+data_flipped1 = np.transpose(np.array(data1))
+data_flipped2 = np.transpose(np.array(data2))
+data_flipped3 = np.transpose(np.array(data3))
+data_flipped4 = np.transpose(np.array(data4))
 
 fig, axs = plt.subplots(2, 2, sharex='all', sharey='all')
-vmax = 0.5; vmin = -vmax
+vmax = 1.6; vmin = -vmax
 
-c1 = axs[0,0].contourf(x, y, np.array(data_flipped1), vmin=vmin, vmax=vmax)
+c1 = axs[0,0].contourf(x, y, data_flipped1, vmin=vmin, vmax=vmax)
 ymin, ymax = axs[0,0].get_ylim()
 axs[0,0].set_yticks(np.round(np.linspace(ymin, ymax, 3), 2)) # Reducing number of ticks
 axs[0,0].set_title("t = 0",fontsize=14)
 
-c2 = axs[0,1].contourf(x, y, np.array(data_flipped2), vmin=vmin, vmax=vmax)
+c2 = axs[0,1].contourf(x, y, data_flipped2, vmin=vmin, vmax=vmax)
 axs[0,1].set_title("t = %d" %times[0],fontsize=14)
 
-c3 = axs[1,0].contourf(x, y, np.array(data_flipped3), vmin=vmin, vmax=vmax)
+c3 = axs[1,0].contourf(x, y, data_flipped3, vmin=vmin, vmax=vmax)
 axs[1,0].set_title("t = %d" %times[1],fontsize=14)
 
-c4 = axs[1,1].contourf(x, y, np.array(data_flipped4), vmin=vmin, vmax=vmax)
+c4 = axs[1,1].contourf(x, y, data_flipped4, vmin=vmin, vmax=vmax)
 axs[1,1].set_title("t = %d" %times[2],fontsize=14)
 
 # Adding common xlabels and ylabels

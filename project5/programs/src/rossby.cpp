@@ -50,7 +50,7 @@ void rossby::zeta_timestep_forward(double &zeta_forward, double zeta, double psi
   double psi_backward)
 {
   // Forward difference time step
-  zeta_forward = zeta + deltat/(2.0*deltax)*(psi_forward - psi_backward);
+  zeta_forward = zeta - deltat/(2.0*deltax)*(psi_forward - psi_backward);
   return;
 }
 
@@ -58,7 +58,7 @@ void rossby::zeta_timestep_centered(double &zeta_forward, double zeta_backward,
   double psi_forward, double psi_backward)
 {
   // Centered difference timestep
-  zeta_forward = zeta_backward + deltat/deltax*(psi_forward - psi_backward);
+  zeta_forward = zeta_backward - deltat/deltax*(psi_forward - psi_backward);
   return;
 }
 

@@ -57,7 +57,7 @@ void rossby::zeta_timestep_forward(double &zeta_forward, double zeta, double psi
   double psi_backward)
 {
   // Forward difference time step
-  zeta_forward = zeta + deltat/(2.0*deltax)*(psi_forward - psi_backward);
+  zeta_forward = zeta - deltat/(2.0*deltax)*(psi_forward - psi_backward);
   return;
 }
 
@@ -65,11 +65,11 @@ void rossby::zeta_timestep_centered(double &zeta_forward, double zeta_backward,
   double psi_forward, double psi_backward)
 {
   // Centered difference timestep
-  zeta_forward = zeta_backward + deltat/deltax*(psi_forward - psi_backward);
+  zeta_forward = zeta_backward - deltat/deltax*(psi_forward - psi_backward);
   return;
 }
 
-void rossby::jacobis_method_2d(int n, mat zeta){
+void rossby::jacobis_method_2d_bounded(int n, mat zeta){
 
   double psiClosed = 0.0;
   double dxdy = deltax*deltay;
@@ -136,6 +136,45 @@ void rossby::jacobis_method_2d(int n, mat zeta){
   return;
 }
 
+void rossby::jacobis_method_2d_periodic(int n, mat zeta){
+
+  double psiClosed = 0.0;
+  double dxdy = deltax*deltay;
+  mat psi_temporary;
+  int iterations = 0; int maxIterations = 10000;
+  double difference = 1.; double maxDifference = 1e-6;
+
+  while((iterations <= maxIterations) && (difference > maxDifference)){
+    psi_temporary = Psi.slice(n); difference = 0.;
+
+    // Interate over along northern and southern edges
+    for(int l = 0; l < xdim; l++){
+      Psi.slice(n)(l,0) = 0.25*(psi_temporary(l,1)+psiClosed
+                 +psi_temporary(periodic(l, xdim,1),0)+psi_temporary(periodic(l, xdim,-1),0)
+                 -dxdy*zeta(l,0));
+      difference += fabs(psi_temporary(l,0)-Psi.slice(n)(l,0));
+      Psi.slice(n)(l,ydim-1) = 0.25*(psiClosed + psi_temporary(l, ydim-2)
+                 +psi_temporary(periodic(l, xdim,1),ydim-1)+psi_temporary(periodic(l, xdim,-1),ydim-1)
+                 -dxdy*zeta(l,ydim-1));
+      difference += fabs(psi_temporary(l,ydim-1)-Psi.slice(n)(l,ydim-1));
+    }
+
+    // Iterate over interior points
+    for(int i = 0; i < xdim; i++){
+      for(int j = 1; j < ydim-1; j++){
+        Psi.slice(n)(i,j) = 0.25*(psi_temporary(i,j+1)+psi_temporary(i,j-1)
+                   +psi_temporary(periodic(i, xdim,1),j)+psi_temporary(periodic(i, xdim,-1),j)
+                   -dxdy*zeta(i,j));
+        difference += fabs(psi_temporary(i,j)-Psi.slice(n)(i,j));
+      }
+    }
+    iterations++;
+    difference /= (xdim*ydim); // Divide difference by number of points
+  }
+  return;
+}
+
+
 void rossby::evolve_bounded(bool forwardStep)
 {
   double psiClosed = 0.0;
@@ -173,7 +212,7 @@ void rossby::evolve_bounded(bool forwardStep)
     zeta_previous = Zeta.slice(n+1);
 
     // updating the streamfunction
-    jacobis_method_2d(n+1, Zeta.slice(n+1));
+    jacobis_method_2d_bounded(n+1, Zeta.slice(n+1));
   }
   return;
 }
@@ -206,7 +245,7 @@ void rossby::evolve_periodic(bool forwardStep)
     zeta_previous = Zeta.slice(n+1);
 
     // updating the streamfunction
-    jacobis_method_2d(n+1, Zeta.slice(n+1));
+    jacobis_method_2d_periodic(n+1, Zeta.slice(n+1));
 
   }
   return;

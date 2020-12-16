@@ -112,6 +112,7 @@ void rossby::jacobis_method(int n, vec zeta){
   return;
 }
 
+
 void rossby::evolve_bounded(bool forwardStep)
 {
   double psiClosed = 0;
